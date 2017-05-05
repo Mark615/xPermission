@@ -1,0 +1,19 @@
+name: xPermission
+main: de.mark615.xpermission.XPermission
+version: 1.0
+description: Permission Plugin
+author: Mark615
+softdepend: [vault]
+
+commands:
+  xperm:
+    description: Xpermission command
+    usage: /xperm
+    aliases: [xperm, xpermission, xp]
+    default: op
+  xrank:
+    description: XRank command
+    usage: /xrank
+    aliases: [xrank]
+    default: op
+permissions:

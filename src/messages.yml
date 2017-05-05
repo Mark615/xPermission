@@ -1,0 +1,28 @@
+command:
+    description: 'commands'
+    nopermission: 'You don''t have permissions to run this command'
+    player-not-found: 'The Player can''t be found'
+    xperm:
+        reload:
+            description: 'Reload XPermission'
+            error: 'Can''t reload XPermission an error has occured'
+            success: 'XPermission reloaded'
+        op:
+            description: 'Reload XPermission'
+            senderInfo: '&2%target% is now operator'
+            targetInfo: '&2You are now an operator'
+    xrank:
+        up:
+            description: 'Rank Player a group up'
+            success: '%target rank had been changed%'
+        down:
+            description: 'Rank Player a group down'
+            success: '%target rank had been changed%'
+        set:
+            description: 'Set Player group rank'
+            success: '%target rank had been changed%'
+            
+message:
+    first-join: 'Has Joined For The First Time!'
+    rank-up: 'Your player rank had been changed. You ranked up!'
+    rank-down: 'Your player rank had been changed. You ranked down!'
