@@ -11,4 +11,5 @@ this line forces essentials not to use in own permission system or an offical su
 xPermission hooks automatily to vault if it is accessible.
 
 
-for more informations read the Wikipage.
+# More
+For more informations read the Wikipage.
