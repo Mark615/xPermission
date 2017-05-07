@@ -12,4 +12,4 @@ xPermission hooks automatily to vault if it is accessible.
 
 
 # More
-For more informations read the Wikipage.
+For more informations read the [Wikipage](https://github.com/Mark615/xPermission/wiki).
