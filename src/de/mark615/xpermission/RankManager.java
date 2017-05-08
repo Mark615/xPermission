@@ -1,6 +1,7 @@
 package de.mark615.xpermission;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -51,6 +52,7 @@ public class RankManager
 							try
 							{
 								changeRankTo(subject, group.getRank());
+								this.plugin.getAPI().createPlayerRankChangedEvent(subject.getPlayer(), subject.getGroup().getRank(), group.getRank(), true);
 							}
 							catch (RankNotFoundException e)
 							{}
@@ -66,6 +68,7 @@ public class RankManager
 		XPlayerSubject subject = plugin.getManager().getXPlayerSubject(p.getUniqueId());
 		if (subject != null)
 			changeRankTo(subject, subject.getGroup().getRank() + 1);
+		this.plugin.getAPI().createPlayerRankChangedEvent(p, subject.getGroup().getRank(), subject.getGroup().getRank() + 1, false);
 	}
 	
 	public void rankPlayerDown(Player p) throws RankNotFoundException
@@ -73,6 +76,7 @@ public class RankManager
 		XPlayerSubject subject = plugin.getManager().getXPlayerSubject(p.getUniqueId());
 		if (subject != null && subject.getGroup().getRank() > 0)
 			changeRankTo(subject, subject.getGroup().getRank() - 1);
+		this.plugin.getAPI().createPlayerRankChangedEvent(p, subject.getGroup().getRank(), subject.getGroup().getRank() - 1, false);
 	}
 	
 	public void setPlayerrank(Player p, int rank) throws RankNotFoundException
@@ -80,6 +84,8 @@ public class RankManager
 		XPlayerSubject subject = plugin.getManager().getXPlayerSubject(p.getUniqueId());
 		if (subject != null)
 			changeRankTo(subject, rank);
+		disableAutoRanking(p, true);
+		this.plugin.getAPI().createPlayerRankChangedEvent(p, subject.getGroup().getRank(), rank, false);
 	}
 	
 	private void changeRankTo(XPlayerSubject target, int rank) throws RankNotFoundException
@@ -90,14 +96,31 @@ public class RankManager
 		
 		if (target == null)
 			return;
-		
+
 		if (target.getGroup().getRank() < rank)
-			target.getPlayer().sendMessage(XUtil.getMessage("message.rank-up"));
+			XUtil.sendFileMessage(target.getPlayer(), "message.rank-up", ChatColor.GREEN);
 		else
-			target.getPlayer().sendMessage(XUtil.getMessage("message.rank-down"));
+			XUtil.sendFileMessage(target.getPlayer(), "message.rank-down", ChatColor.YELLOW);
 		
 		target.setGroup(targetGroup);
 		plugin.getSettingManager().saveXPlayerSubject(target);
 		plugin.getManager().reloadPlayerPermission(target.getPlayer());
+	}
+	
+	public void disableAutoRanking(Player player, boolean value)
+	{
+		XPlayerSubject subject = this.plugin.getManager().getXPlayerSubject(player.getUniqueId());
+		if (subject == null)
+			return;
+		
+		if (value)
+		{
+			this.plugin.getPermissionEditor().addPermissionToXSubject(subject, "- xperm.rank.auto");
+		}
+		else
+		{
+			this.plugin.getPermissionEditor().addPermissionToXSubject(subject, "- xperm.rank.auto");
+		}
+		this.plugin.getAPI().createPlayerAutoRankingChangedEvent(player, value);
 	}
 }

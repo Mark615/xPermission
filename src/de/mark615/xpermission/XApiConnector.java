@@ -43,6 +43,11 @@ public class XApiConnector extends XPermissionApi
 			sender.sendMessage(ChatColor.RED + "Selected rank doesn't exist!");
 		}
 	}
-	
 
+	@Override
+	public void setPlayerAutoRankDisabled(Player sender, Player target, boolean value)
+	{
+		plugin.getRankManager().disableAutoRanking(target, value);
+	}
+	
 }

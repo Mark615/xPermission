@@ -1,8 +1,6 @@
 package de.mark615.xpermission.object;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -19,7 +17,6 @@ public class XPlayerSubject
 	private long lastRequest = 0;
 	
 	private Map<UUID, Map<String, Integer>> permission = null;
-	private List<String> loadedGroups = null;
 	private UUID uuid = null;
 	private XPermissible permissible = null;
 	private XPermissionTree tree = null;
@@ -35,23 +32,12 @@ public class XPlayerSubject
 		this.uuid = uuid;
 		this.permissible = permissible;
 		this.permission = new HashMap<>();
-		this.loadedGroups = new ArrayList<>();
 		this.lastLogin = System.currentTimeMillis();
 		if (section != null)
 		{
 			this.firstLogin = section.getLong("firstLogin", 0);
 			section.set("lastLogin", this.lastLogin);
 		}
-	}
-	
-	public void addGroup(String group)
-	{
-		this.loadedGroups.add(group);
-	}
-	
-	public boolean containsGroup(String name)
-	{
-		return this.loadedGroups.contains(name);
 	}
 	
 	public void setPermission(UUID uuid, String perm, int value)

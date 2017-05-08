@@ -22,11 +22,6 @@ public class XPermissionNode
 		}
 	}
 	
-	public boolean isOp()
-	{
-		return op;
-	}
-	
 	public String getRoot()
 	{
 		return root;
@@ -69,6 +64,14 @@ public class XPermissionNode
 	
 	public int isActive()
 	{
+		if (leafs.size() > 0)
+			return 0;
 		return active;
 	}
+	
+	public boolean isOp()
+	{
+		return op;
+	}
+	
 }

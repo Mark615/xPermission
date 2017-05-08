@@ -16,6 +16,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.earth2me.essentials.Essentials;
 
 import de.mark615.xapi.XApi;
+import de.mark615.xapi.versioncheck.VersionCheck;
+import de.mark615.xapi.versioncheck.VersionCheck.XType;
 import de.mark615.xpermission.command.CommandXPerm;
 import de.mark615.xpermission.command.CommandXRank;
 import de.mark615.xpermission.command.XCommand;
@@ -26,16 +28,20 @@ import net.milkbowl.vault.permission.Permission;
 
 public class XPermission extends JavaPlugin
 {
+	public static final int BUILD = 2;
 	public static final String PLUGIN_NAME = "[xPermission] ";
 	public static final String PLUGIN_NAME_SHORT = "[xPerm] ";
+	
+	private static XPermission instance = null;
 
-	private XApiConnector xapiconn;
-	private Essentials ess;
+	private XApiConnector xapiconn = null;
+	private Essentials ess = null;
 
 	private SettingManager settings = null;
-	private static XPermission instance = null;
-	private PermissionManager manager;
-	private RankManager rankmanager;
+	private PermissionManager manager = null;
+	private PermissionEditor editor = null;
+	private RankManager rankmanager = null;
+	
 	private List<Group> groups = null;
 	private Map<String, XCommand> commands = null;
 
@@ -48,10 +54,8 @@ public class XPermission extends JavaPlugin
 		settings = SettingManager.getInstance();
 		settings.setup(this);
 		this.manager = new PermissionManager(this);
+		this.editor = new PermissionEditor(this);
 		this.rankmanager = new RankManager(this);
-
-		setupPermissionGroups();
-		settings.checkPermissionFile();
 
 		registerEvents();
 		registerCommands();
@@ -68,7 +72,7 @@ public class XPermission extends JavaPlugin
 		}
 		
 		hookVaultPermissions();
-		XUtil.info("startet");
+		loadPlugin();
 	}
 
 	@Override
@@ -80,8 +84,21 @@ public class XPermission extends JavaPlugin
 			this.manager.unregisterPlayer(p); 
 		}
 		this.settings.savePermission();
-		XUtil.info("shutdown");
 	}
+	
+	public void loadPlugin()
+	{
+		setupPermissionGroups();
+		settings.checkPermissionFile();
+		
+		for (Player p : Bukkit.getServer().getOnlinePlayers())
+		{
+			this.getManager().unregisterPlayer(p);
+			this.getManager().registerPlayer(p);
+		}
+	}
+	
+	
 	
 	
 
@@ -96,14 +113,41 @@ public class XPermission extends JavaPlugin
 		commands.put("xrank", new CommandXRank(this));
 	}
 
-	private boolean setupXApi()
+	private boolean setupXApi() 
 	{
 		XApi xapi = (XApi)getServer().getPluginManager().getPlugin("xApi");
     	if(xapi == null)
     		return false;
     	
-    	xapiconn = new XApiConnector(xapi, this);
-    	xapi.registerXPermission(xapiconn);
+    	try
+    	{
+	    	if (xapi.checkVersion(XType.xPermission, BUILD))
+	    	{
+	        	xapiconn = new XApiConnector(xapi, this);
+	        	xapi.registerXPermission(xapiconn);
+	    	}
+	    	else
+	    	{
+	    		XUtil.severe("Can't hook to xApi!"); 
+	    		if (VersionCheck.isXPluginHigherXApi(XType.xPermission, BUILD))
+	    		{
+		    		XUtil.warning("Please update your xApi!");
+		    		XUtil.warning("Trying to hook to xApi. Have an eye into console for errors with xApi!");
+
+		        	xapiconn = new XApiConnector(xapi, this);
+		        	xapi.registerXPermission(xapiconn);
+	    		}
+	    		else
+	    		{
+		    		XUtil.severe("Please update your xPermission for hooking.");
+	    		}
+	    	}
+    	}
+    	catch (Exception e)
+    	{
+    		XUtil.severe("An error accurred during connection to xApi!");
+    	}
+    	
     	return xapiconn != null;
 	}
 	
@@ -113,7 +157,7 @@ public class XPermission extends JavaPlugin
 		{
             final XVault vault = new XVault(this);
             getServer().getServicesManager().register(Permission.class, vault, this, ServicePriority.High); // Hook into vault
-            XUtil.info("Hooked into Vault for Permission interfaces");
+            XUtil.info("Activate Vault permissioninterfaces");
             return true;
 		}
 		return false;
@@ -141,7 +185,7 @@ public class XPermission extends JavaPlugin
 		int countDefaultgroups = 0;
 		for (Group group : groups)
 		{
-			if (group.isDefault() && !group.getName().equalsIgnoreCase("default"))
+			if (group.isDefault())
 				countDefaultgroups++;
 		}
 		
@@ -153,17 +197,35 @@ public class XPermission extends JavaPlugin
 		else
 		if (countDefaultgroups == 1)
 		{
-			XUtil.info("Default group has to group: " + getDefaultGroup().getName());
+			XUtil.info("Default group is: " + getDefaultGroup().getName());
 		}
 		else
 		{
-			XUtil.severe("More than one defaultgroup has been found. Select group[default] as defaultgroup!");
+			countDefaultgroups = 0;
 			for (Group group : groups)
 			{
 				if (group.isDefault() && !group.getName().equalsIgnoreCase("default"))
-					group.setDefault(false);
+					countDefaultgroups++;
 			}
-			getDefaultGroup().setDefault(true);
+			if (countDefaultgroups == 1)
+			{
+				for (Group group : groups)
+				{
+					if (group.isDefault() && group.getName().equalsIgnoreCase("default"))
+						group.setDefault(false);
+				}
+			}
+			if (countDefaultgroups > 1)
+			{
+				XUtil.severe("More than one defaultgroup has been found. Select group[default] as defaultgroup!");
+				for (Group group : groups)
+				{
+					if (group.getName().equalsIgnoreCase("default"))
+						group.setDefault(true);
+					else
+						group.setDefault(false);
+				}
+			}
 		}
 	}
 	
@@ -242,6 +304,11 @@ public class XPermission extends JavaPlugin
 	public PermissionManager getManager()
 	{
 		return this.manager;
+	}
+	
+	public PermissionEditor getPermissionEditor()
+	{
+		return editor;
 	}
 	
 	public RankManager getRankManager()

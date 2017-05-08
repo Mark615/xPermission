@@ -96,30 +96,39 @@ public class XPermissionTree
 			return false;
 		String[] perm  = name.split("\\.");
 		
-		boolean isop = false;
+		int hasop = 0;
 		int hasPermission = 0;
 		for (XPermissionNode node : nodes)
 		{
 			if (node.getRoot().equals(perm[0]))
 			{
+				XPermissionNode childOpNode = node;
 				XPermissionNode childNode = node;
 				if (perm.length > 1)
 				{
 					for (int i = 1; i < perm.length; i++)
 					{
+						childOpNode = has0(childNode, "*");
 						childNode = has0(childNode, perm[i]);
 						if (childNode == null)
 							break;
+						
+						if (childNode.isOp())
+						{
+							hasop = childNode.isActive();
+						}
+						else
+						if (childOpNode != null && childOpNode.isOp())
+						{
+							hasop = childOpNode.isActive(); 
+						}
+						
 						if (perm.length == (i + 1))
 						{
 							hasPermission = childNode.isActive();
 							break;
 						}
 						
-						if (childNode.isOp() && childNode.isActive() == 1)
-						{
-							isop = true;
-						}
 					}
 				}
 				else
@@ -142,7 +151,7 @@ public class XPermissionTree
 		if (hasPermission != 0)
 			return hasPermission == 1 ? true : false;
 		
-		return isop;
+		return hasop == 1 ? true : false;
 	}
 	
 	private XPermissionNode has0(XPermissionNode node, String name)

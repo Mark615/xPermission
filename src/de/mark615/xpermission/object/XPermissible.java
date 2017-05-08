@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.permissions.PermissibleBase;
@@ -49,13 +50,18 @@ public class XPermissible extends PermissibleBase
     @Override
     public boolean isOp()
     {
-        return super.isOp();
+    	return super.isOp();
     }
 
     @Override
     public void setOp(boolean value)
     {
-        super.setOp(value);
+    	super.setOp(value);
+    	ConfigurationSection section = this.plugin.getSettingManager().getPlayerConfigurationsection(subject.getUUID());
+    	if (section != null)
+    	{
+    		section.set("op", value);
+    	}
     }
 
     @Override
@@ -63,10 +69,9 @@ public class XPermissible extends PermissibleBase
     {
     	if (name == null)
     		return false;
-    	
     	name = name.toLowerCase();
 
-    	//System.out.println("isPermission: " + name + "; " + getPermissionValue(name, "get"));
+//    	System.out.println("isPermission: " + name + "; " + getPermissionValue(name, "get"));
     	return getPermissionValue(name, "get");
     }
 
@@ -96,12 +101,12 @@ public class XPermissible extends PermissibleBase
     {
     	if (inName == null)
     		return false;
+    	inName = inName.toLowerCase();
     	
     	if (isOp())
     		return true;
     	
-    	//System.out.println("hasPermission: " + inName + "; " + getPermissionValue(inName, "has"));
-    	inName = inName.toLowerCase();
+//    	System.out.println("hasPermission: " + inName + "; " + getPermissionValue(inName, "has"));
     	return getPermissionValue(inName, "has");
     }
 

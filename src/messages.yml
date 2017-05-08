@@ -9,18 +9,22 @@ command:
             success: 'XPermission reloaded'
         op:
             description: 'Reload XPermission'
-            senderInfo: '&2%target% is now operator'
-            targetInfo: '&2You are now an operator'
+            senderInfoAdd: '&2%target% is now an operator'
+            senderInfoRemove: '&2%target% is no longer an operator'
+            targetInfoAdd: '&2You are now an operator'
+            targetInfoAdd: '&2You are no longer an operator'
     xrank:
         up:
             description: 'Rank Player a group up'
-            success: '%target rank had been changed%'
+            success: '%target% rank had been changed'
         down:
             description: 'Rank Player a group down'
-            success: '%target rank had been changed%'
+            success: '%target% rank had been changed'
         set:
             description: 'Set Player group rank'
-            success: '%target rank had been changed%'
+            success: '%target% rank had been changed'
+        info:
+            description: 'Get info about Player rank'
             
 message:
     first-join: 'Has Joined For The First Time!'

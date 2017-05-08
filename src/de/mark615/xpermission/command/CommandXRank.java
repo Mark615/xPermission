@@ -1,5 +1,7 @@
 package de.mark615.xpermission.command;
 
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -16,191 +18,132 @@ public class CommandXRank extends XCommand
 
 	public CommandXRank(XPermission plugin)
 	{
-		super("xrank", "xperm.xrank");
+		super("xrank", "xperm.rank");
 		this.plugin = plugin;
 	}
 
+	@Override
+	public void fillSubCommands(List<String> subcommands)
+	{
+		subcommands.add("info");
+		subcommands.add("up");
+		subcommands.add("down");
+		subcommands.add("set");
+	}
 	
-	private void showHelp(Player p)
+
+	@Override
+	protected void showHelp(CommandSender p)
 	{
 		p.sendMessage(ChatColor.GREEN + XPermission.PLUGIN_NAME + ChatColor.GRAY + " - " + ChatColor.YELLOW + XUtil.getMessage("command.description"));
-		if(p.hasPermission("xperm.rank.set")) p.sendMessage(ChatColor.GREEN + "/xrank up [player]" + ChatColor.YELLOW + " - " + XUtil.getMessage("command.xrank.up.description"));
-		if(p.hasPermission("xperm.rank.set")) p.sendMessage(ChatColor.GREEN + "/xrank down [player]" + ChatColor.YELLOW + " - " + XUtil.getMessage("command.xrank.down.description"));
-		if(p.hasPermission("xperm.rank.set")) p.sendMessage(ChatColor.GREEN + "/xrank set [player]" + ChatColor.YELLOW + " - " + XUtil.getMessage("command.xrank.set.description"));
+		p.sendMessage(ChatColor.GREEN + "/xrank info <player>" + ChatColor.YELLOW + " - " + XUtil.getMessage("command.xrank.info.description"));
+		if(matchPermission(p, "xperm.rank.set")) p.sendMessage(ChatColor.GREEN + "/xrank up <player>" + ChatColor.YELLOW + " - " + XUtil.getMessage("command.xrank.up.description"));
+		if(matchPermission(p, "xperm.rank.set")) p.sendMessage(ChatColor.GREEN + "/xrank down <player>" + ChatColor.YELLOW + " - " + XUtil.getMessage("command.xrank.down.description"));
+		if(matchPermission(p, "xperm.rank.set")) p.sendMessage(ChatColor.GREEN + "/xrank set <player>" + ChatColor.YELLOW + " - " + XUtil.getMessage("command.xrank.set.description"));
 	}
 
-	private void showHelp(CommandSender s)
-	{
-		s.sendMessage(ChatColor.GREEN + XPermission.PLUGIN_NAME + ChatColor.GRAY + " - " + ChatColor.YELLOW + XUtil.getMessage("command.description"));
-		s.sendMessage(ChatColor.GREEN + "/xrank up [player]" + ChatColor.YELLOW + " - " + XUtil.getMessage("command.xrank.up.description"));
-		s.sendMessage(ChatColor.GREEN + "/xrank down [player]" + ChatColor.YELLOW + " - " + XUtil.getMessage("command.xrank.down.description"));
-		s.sendMessage(ChatColor.GREEN + "/xrank set [player]" + ChatColor.YELLOW + " - " + XUtil.getMessage("command.xrank.set.description"));
-	}
-
-	
 	@SuppressWarnings("deprecation")
 	@Override
-	public boolean run(CommandSender commandSender, Command command, String s, String[] args)
+	public boolean run(CommandSender sender, Command command, String s, String[] args)
 	{
 		if(args.length > 0)
 		{
 			if (args[0].equalsIgnoreCase("help") || args[0].equals("?"))
 			{
-				showHelp(commandSender);
+				showHelp(sender);
+			}
+			
+			if (!this.containsSubCommand(args[0]))
+			{
+				XUtil.sendCommandUsage(sender, "use: /xrank <help/?> " + ChatColor.YELLOW + "- for help");
 				return true;
 			}
 			
 			if (args.length < 2)
 			{
-				commandSender.sendMessage(ChatColor.RED + "use: /xrank " + args[0] + " <player>");
+				XUtil.sendCommandUsage(sender, "use: /xrank " + args[0] + " <player>");
 				return true;
 			}
 			
 			Player target = Bukkit.getPlayer(args[1]);
+
 			if (target == null)
 			{
-				commandSender.sendMessage(XUtil.getMessage("command.player-not-found"));
+				XUtil.sendFileMessage(sender, "command.player-not-found", ChatColor.RED);
 				return true;
 			}
 			
 			try
 			{
-				if (args[0].equalsIgnoreCase("up"))
+				if (args[0].equalsIgnoreCase("info"))
 				{
-					plugin.getRankManager().rankPlayerUp(target);
-					commandSender.sendMessage(XUtil.getMessage("command.xrank.up.success").replace("%target%", target.getName()));
+					XUtil.sendCommandInfo(sender, "Playerrank info: " + target.getName());
+					XUtil.sendCommandInfo(sender, "- autoranking: [" + target.hasPermission("xperm.rank.auto") + "]");
+					XUtil.sendCommandInfo(sender, 
+							"- playerrank: [" + this.plugin.getManager().getXPlayerSubject(target.getUniqueId()).getGroup().getRank() +"] - " +
+							"group [" + this.plugin.getManager().getXPlayerSubject(target.getUniqueId()).getGroup().getName() + "]");
 					return true;
 				}
-				
-				if (args[0].equalsIgnoreCase("down"))
-				{
-					plugin.getRankManager().rankPlayerDown(target);
-					commandSender.sendMessage(XUtil.getMessage("command.xrank.down.success").replace("%target%", target.getName()));
-					return true;
-				}
-				
-				if (args[0].equalsIgnoreCase("set"))
-				{
-					if (args.length < 3)
-					{
-						commandSender.sendMessage(ChatColor.RED + "use: /xrank " + args[0] + " <player> <rank>");
-						return true;
-					}
-					
-					try
-					{
-						plugin.getRankManager().setPlayerrank(target, Integer.parseInt(args[2]));
-						commandSender.sendMessage(XUtil.getMessage("command.xrank.set.success").replace("%target%", target.getName()));
-						return true;
-					}
-					catch(NumberFormatException e)
-					{
-						commandSender.sendMessage(ChatColor.RED + "use: /xrank " + args[0] + " <player> <rank>");
-						commandSender.sendMessage(ChatColor.YELLOW + "example: /xrank " + args[0] + " Mark615 4");
-						return true;
-					}
-				}
-			}
-			catch (RankNotFoundException e)
-			{
-				commandSender.sendMessage(ChatColor.RED + "Select rank doesn't exist!");
-			}
-		}
-		else
-		{
-			showHelp(commandSender);
-		}
-		return true;
-	}
-
-	@SuppressWarnings("deprecation")
-	@Override
-	public boolean run(Player player, Command command, String s, String[] args)
-	{
-		if(args.length > 0)
-		{
-			if (args[0].equalsIgnoreCase("help") || args[0].equals("?"))
-			{
-				showHelp(player);
-			}
-
-			Player target = null;
-			if (args.length < 2)
-			{
-				target = player;
-			}
-			else
-			{
-				target = Bukkit.getPlayer(args[1]);
-			}
-
-			if (target == null)
-			{
-				player.sendMessage(XUtil.getMessage("command.player-not-found"));
-				return true;
-			}
 			
-			try
-			{
 				if (args[0].equalsIgnoreCase("up"))
 				{
-					if (!player.hasPermission("xperm.xrank.up"))
+					if (!matchPermission(sender, "xperm.rank.set"))
 					{
 						this.hasNoPermission();
 						return false;
 					}
 					plugin.getRankManager().rankPlayerUp(target);
-					player.sendMessage(XUtil.getMessage("command.xrank.up").replace("%target%", target.getName()));
+					XUtil.sendCommandInfo(sender, XUtil.getMessage("command.xrank.up.success").replace("%target%", target.getName()));
 					return true;
 				}
 				
 				if (args[0].equalsIgnoreCase("down"))
 				{
-					if (!player.hasPermission("xperm.xrank.down"))
+					if (!matchPermission(sender, "xperm.rank.set"))
 					{
 						this.hasNoPermission();
 						return false;
 					}
 					plugin.getRankManager().rankPlayerDown(target);
-					player.sendMessage(XUtil.getMessage("command.xrank.down").replace("%target%", target.getName()));
+					XUtil.sendCommandInfo(sender, XUtil.getMessage("command.xrank.down.success").replace("%target%", target.getName()));
 					return true;
 				}
 				
 				if (args[0].equalsIgnoreCase("set"))
 				{
-					if (!player.hasPermission("xperm.xrank.set"))
+					if (!matchPermission(sender, "xperm.rank.set"))
 					{
 						this.hasNoPermission();
 						return false;
 					}
 					if (args.length < 3)
 					{
-						player.sendMessage(ChatColor.RED + "use: /xrank " + args[0] + " <player> <rank>");
+						XUtil.sendCommandUsage(sender, "use: /xrank " + args[0] + " <player> <rank>");
 						return true;
 					}
 					
 					try
 					{
 						plugin.getRankManager().setPlayerrank(target, Integer.parseInt(args[2]));
-						player.sendMessage(XUtil.getMessage("command.xrank.set").replace("%target%", target.getName()));
+						XUtil.sendCommandInfo(sender, XUtil.getMessage("command.xrank.set.success").replace("%target%", target.getName()));
 						return true;
 					}
 					catch(NumberFormatException e)
 					{
-						player.sendMessage(ChatColor.RED + "use: /xrank " + args[0] + " <player> <rank>");
-						player.sendMessage(ChatColor.YELLOW + "example: /xrank " + args[0] + " " + player.getName() + " 4");
+						XUtil.sendCommandUsage(sender, "use: /xrank " + args[0] + " <player> <rank>");
+						XUtil.sendCommandHelp(sender, "example: /xrank " + args[0] + " Notch 4");
 						return true;
 					}
 				}
 			}
 			catch (RankNotFoundException e)
 			{
-				player.sendMessage(ChatColor.RED + "Select rank doesn't exist!");
+				XUtil.sendCommandError(sender, "Select rank doesn't exist!");
 			}
 		}
 		else
 		{
-			showHelp(player);
+			showHelp(sender);
 		}
 		return true;
 	}

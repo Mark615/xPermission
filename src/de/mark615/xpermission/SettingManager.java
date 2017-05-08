@@ -219,25 +219,26 @@ public class SettingManager
     
     public Map<String, Boolean> getPlayerPermissionList(UUID uuid, XPlayerSubject subject)
     {
+    	List<String> loadedGroups = new ArrayList<>();
     	Map<String, Boolean> perms = new HashMap<>();
 
     	//load grouppermissions
     	String group = permission.getString("permissions." + uuid.toString() + ".group");
-    	loadPlayerGroupPermission(group, perms, subject);
+    	loadPlayerGroupPermission(group, perms, subject, loadedGroups);
     	
     	//load playerpermission
     	loadPlayerPermission(uuid, perms);
     	return perms;
     }
     
-    private void loadPlayerGroupPermission(String group, Map<String, Boolean> playerPerms, XPlayerSubject subject)
+    private void loadPlayerGroupPermission(String group, Map<String, Boolean> playerPerms, XPlayerSubject subject, List<String> loadedGroups)
     {
-    	subject.addGroup(group);
+    	loadedGroups.add(group);
     	String nextGroup = permission.getString("permissions.groups." + group + ".inheriance");
     	if (nextGroup != null && !nextGroup.equalsIgnoreCase(""))
     	{
-    		if (!subject.containsGroup(nextGroup))
-    			loadPlayerGroupPermission(nextGroup, playerPerms, subject);
+    		if (!loadedGroups.contains(nextGroup))
+    			loadPlayerGroupPermission(nextGroup, playerPerms, subject, loadedGroups);
     	}
     	
     	//load permissions of group
@@ -268,22 +269,36 @@ public class SettingManager
     
     private void calculatePermission(Map<String, Boolean> playerPerms, String perm)
     {
-		boolean value = true;
+		int value = 0;
 		if (perm.startsWith("- "))
 		{
-			value = false;
+			value = -1;
 			perm = perm.substring(1);
 		}
 		else
 		if (perm.startsWith("+ "))
 		{
+			value = 1;
 			perm = perm.substring(1);
 		}
 		
 		perm = perm.trim();
 		perm = perm.toLowerCase();
 		
-		playerPerms.put(perm, value);
+		if (value == -1)
+		{
+			playerPerms.put(perm, false);
+		}
+		else
+		if (value == 1)
+		{
+			playerPerms.put(perm, true);
+		}
+		else
+		{
+			if (!playerPerms.containsKey(perm))
+				playerPerms.put(perm, true);
+		}
     }
     
     public String getPlayerDisplayName(Player p)
@@ -301,8 +316,14 @@ public class SettingManager
 		if (permission.getBoolean("permissions.groups." + (permission.getString(path + ".group")) + ".op"))
 			isOP = true;
 		
-		if (permission.getBoolean("permissions." + p.getUniqueId().toString() + ".op"))
-			isOP = true;
+		String playerop = permission.getString("permissions." + p.getUniqueId().toString() + ".op");
+		if (playerop != null)
+		{
+			if (playerop.equalsIgnoreCase("true"))
+				isOP = true;
+			else
+				isOP = false;
+		}
 		
 		return isOP;
     }
@@ -361,7 +382,6 @@ public class SettingManager
 	{
 		ConfigurationSection section = permission.getConfigurationSection("permissions." + subject.getUUID().toString());
 		section.set("group", subject.getGroup().getName());
-		section.set("op", subject.getXPermissible().isOp());
 		section.set("lastLogin", subject.getLastLogin());
 		section.set("gameTime", subject.getTotalGameTime());
 	}
