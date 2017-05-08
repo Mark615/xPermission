@@ -28,7 +28,7 @@ import net.milkbowl.vault.permission.Permission;
 
 public class XPermission extends JavaPlugin
 {
-	public static final int BUILD = 2;
+	public static final int BUILD = 3;
 	public static final String PLUGIN_NAME = "[xPermission] ";
 	public static final String PLUGIN_NAME_SHORT = "[xPerm] ";
 	
