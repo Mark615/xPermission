@@ -10,6 +10,8 @@ this line forces essentials not to use in own permission system or an offical su
 # Vault Support
 xPermission hooks automatily to vault if it is accessible.
 
+# xApi
+Support [xapi](https://github.com/Mark615/xApi)
 
 # More
 For more informations read the [Wikipage](https://github.com/Mark615/xPermission/wiki).
