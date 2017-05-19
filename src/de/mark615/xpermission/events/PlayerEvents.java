@@ -4,6 +4,7 @@ import static de.mark615.xpermission.object.CraftBukkitInterface.getCBClassName;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -31,14 +32,14 @@ public class PlayerEvents implements Listener
 
 	SettingManager settings = SettingManager.getInstance();
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerJoin(PlayerJoinEvent e)
 	{
 		final Player p = e.getPlayer();
 		this.plugin.getManager().registerPlayer(p);
 	}
 	
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerQuit(PlayerQuitEvent e)
 	{
 		plugin.getManager().unregisterPlayer(e.getPlayer());
@@ -48,7 +49,8 @@ public class PlayerEvents implements Listener
 	@EventHandler
 	public void onPlayerAFKStateChangedEvent(AfkStatusChangeEvent e)
 	{
-		this.plugin.getManager().getXPlayerSubject(e.getAffected().getBase().getUniqueId()).setAfkMode(e.getValue());
+		if (e.getAffected().getBase() != null)
+			this.plugin.getManager().getXPlayerSubject(e.getAffected().getBase().getUniqueId()).setAfkMode(e.getValue());
 	}
 	
 	

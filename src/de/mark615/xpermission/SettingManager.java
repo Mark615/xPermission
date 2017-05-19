@@ -105,7 +105,6 @@ public class SettingManager
         	permission.set(temp + ".default", false); 
         	permission.set(temp + ".inheriance", "default");
         	permission.set(temp + ".rank", "1");
-        	permission.set(temp + ".op", false);
         	permission.set(temp + ".permission", new String[]{"*", "*.*"});
         }
         
@@ -144,8 +143,7 @@ public class SettingManager
     	permission.set(temp + ".suffix", "§f"); 
     	permission.set(temp + ".default", true); 
     	permission.set(temp + ".inheriance", "");
-    	permission.set(temp + ".rank", "2"); 
-    	permission.set(temp + ".op", false);
+    	permission.set(temp + ".rank", "2");
     	permission.set(temp + ".permission", new String[0]);
     }
     
@@ -173,11 +171,11 @@ public class SettingManager
 		permission.options().configuration().addDefault(path + ".prefix", "$f[" + group + "]");
 		permission.options().configuration().addDefault(path + ".suffix", "$f");
 		permission.options().configuration().addDefault(path + ".default", "");
-		permission.options().configuration().addDefault(path + ".op", false);
 		permission.options().configuration().addDefault(path + ".inheriance", "");
 		permission.options().configuration().addDefault(path + ".rank", 0);
 		permission.options().configuration().addDefault(path + ".upgrade", 0);
 		permission.options().configuration().addDefault(path + ".permission", new String[0]);
+		section.set(path + ".op", null);
     }
     
     private void checkPlayerConfigurationSection(String path, ConfigurationSection section)
@@ -311,21 +309,7 @@ public class SettingManager
     
     public boolean isPlayerOp(Player p)
     {
-    	boolean isOP = false;
-    	String path = "permissions." + p.getUniqueId().toString();
-		if (permission.getBoolean("permissions.groups." + (permission.getString(path + ".group")) + ".op"))
-			isOP = true;
-		
-		String playerop = permission.getString("permissions." + p.getUniqueId().toString() + ".op");
-		if (playerop != null)
-		{
-			if (playerop.equalsIgnoreCase("true"))
-				isOP = true;
-			else
-				isOP = false;
-		}
-		
-		return isOP;
+    	return permission.getBoolean("permissions." + p.getUniqueId().toString() + ".op", false);		
     }
     
     public int getPlayerRank(UUID uuid)

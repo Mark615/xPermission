@@ -35,8 +35,8 @@ public class CommandXPerm extends XCommand
 	protected void showHelp(CommandSender p)
 	{
 		p.sendMessage(ChatColor.GREEN + XPermission.PLUGIN_NAME + ChatColor.GRAY + "- " + ChatColor.YELLOW + XUtil.getMessage("command.description"));
-		if(matchPermission(p, "xperm.reload")) p.sendMessage(ChatColor.GREEN + "/xperm reload" + ChatColor.YELLOW + " - "+ XUtil.getMessage("command.xperm.reload.description"));
-		if(matchPermission(p, "xperm.op")) p.sendMessage(ChatColor.GREEN + "/xperm op <player>" + ChatColor.YELLOW + " - "+ XUtil.getMessage("command.xperm.op.description"));
+		if(matchPermission(p, "xperm.perm.reload")) p.sendMessage(ChatColor.GREEN + "/xperm reload" + ChatColor.YELLOW + " - "+ XUtil.getMessage("command.xperm.reload.description"));
+		if(matchPermission(p, "xperm.perm.op")) p.sendMessage(ChatColor.GREEN + "/xperm op <player>" + ChatColor.YELLOW + " - "+ XUtil.getMessage("command.xperm.op.description"));
 	}
 
 	@SuppressWarnings("deprecation")
@@ -59,7 +59,7 @@ public class CommandXPerm extends XCommand
 			
 			if (args[0].equalsIgnoreCase("reload"))
 			{
-				if (!matchPermission(sender, "xperm.reload"))
+				if (!matchPermission(sender, "xperm.perm.reload"))
 				{
 					this.hasNoPermission();
 					return false;
@@ -88,7 +88,7 @@ public class CommandXPerm extends XCommand
 					me = true;
 				if (me)
 				{
-					if (!matchPermission(sender, "xperm.op.me"))
+					if (!matchPermission(sender, "xperm.perm.op.me"))
 					{
 						this.hasNoPermission();
 						return false;
@@ -96,7 +96,7 @@ public class CommandXPerm extends XCommand
 				}
 				else
 				{
-					if (!matchPermission(sender, "xperm.op.other"))
+					if (!matchPermission(sender, "xperm.perm.op.other"))
 					{
 						this.hasNoPermission();
 						return false;

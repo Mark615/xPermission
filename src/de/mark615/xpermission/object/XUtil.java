@@ -30,26 +30,38 @@ public class XUtil
 		e.printStackTrace();
 	}
 	
-	public static String getMessage(String msg)
+	public static String getMessage(String file)
 	{
-		String raw = SettingManager.getInstance().getMessage().getString(msg);
+		String raw = SettingManager.getInstance().getMessage().getString(file);
 		if (raw == null)
 		{
-			raw = msg + " (not found in messages.yml)";
+			raw = file + " (not found in messages.yml)";
 		}
 		raw = raw.replace("&", "§");
 		return raw;
 	}
 	
-	private static void sendMessage(CommandSender sender, String message)
+	private static void sendMessage(CommandSender sender, String message, boolean prefix)
 	{
 		message = message.replace("&", "§");
-		sender.sendMessage(message);
+		
+		for (String line : message.split("%ln%"))
+		{
+			if (!prefix)
+				sender.sendMessage(line);
+			else
+				sender.sendMessage(XPermission.PLUGIN_NAME_SHORT + line);
+		}
 	}
 	
-	public static void sendFileMessage(CommandSender s, String msg, ChatColor color)
+	private static void sendMessage(CommandSender sender, String message)
 	{
-		String message = getMessage(msg);
+		sendMessage(sender, message, false);
+	}
+	
+	public static void sendFileMessage(CommandSender s, String file, ChatColor color)
+	{
+		String message = getMessage(file);
 		if (s instanceof Player)
 			message = color + message;
 		
@@ -59,6 +71,11 @@ public class XUtil
 	public static void sendFileMessage(CommandSender s, String msg)
 	{
 		sendMessage(s, getMessage(msg));
+	}
+
+	public static void sendFileMessage(CommandSender s, String msg, boolean prefix)
+	{
+		sendMessage(s, getMessage(msg), prefix);
 	}
 	
 	public static void sendCommandUsage(CommandSender s, String usage)

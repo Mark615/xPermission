@@ -109,7 +109,6 @@ public class PermissionManager
 		Map<String, Boolean> permissions = settings.getPlayerPermissionList(p.getUniqueId(), permissionList.get(p.getUniqueId()));
 		for (String perm : permissions.keySet())
 		{
-			System.out.println("attach: "+ perm + ", " + permissions.get(perm));
 			PermissionAttachment attachment = p.addAttachment(XPermission.getInstance(), perm, permissions.get(perm));
 			attachment.setPermission(perm, permissions.get(perm));
 		}
