@@ -28,7 +28,7 @@ import net.milkbowl.vault.permission.Permission;
 
 public class XPermission extends JavaPlugin
 {
-	public static final int BUILD = 4;
+	public static final int BUILD = 5;
 	public static final String PLUGIN_NAME = "[xPermission] ";
 	public static final String PLUGIN_NAME_SHORT = "[xPerm] ";
 	
@@ -71,6 +71,7 @@ public class XPermission extends JavaPlugin
 			XUtil.info("connected to Essentials2");
 		}
 		
+		XUtil.onEnable();
 		hookVaultPermissions();
 		loadPlugin();
 	}
@@ -78,6 +79,7 @@ public class XPermission extends JavaPlugin
 	@Override
 	public void onDisable()
 	{
+		XUtil.onDisable();
 		this.groups = null;
 		for (Player p : Bukkit.getServer().getOnlinePlayers())
 		{
@@ -168,7 +170,7 @@ public class XPermission extends JavaPlugin
 		Essentials ess = (Essentials)getServer().getPluginManager().getPlugin("Essentials");
 		if (ess == null)
 			return false;
-		
+
 		this.ess = ess;
 		return true;
 	}
