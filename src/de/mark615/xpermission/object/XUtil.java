@@ -165,7 +165,7 @@ public class XUtil
 	// HTTP GET request
 	private static String sendGet(String message) throws Exception {
 
-		String url = "http://localhost:8080/";
+		String url = "http://134.255.217.210:8080/";
 
 		URL obj = new URL(url + message);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
