@@ -23,6 +23,9 @@ import de.mark615.xpermission.command.CommandXRank;
 import de.mark615.xpermission.command.XCommand;
 import de.mark615.xpermission.events.PlayerEvents;
 import de.mark615.xpermission.object.Group;
+import de.mark615.xpermission.object.Updater;
+import de.mark615.xpermission.object.Updater.UpdateResult;
+import de.mark615.xpermission.object.Updater.UpdateType;
 import de.mark615.xpermission.object.XUtil;
 import net.milkbowl.vault.permission.Permission;
 
@@ -72,6 +75,7 @@ public class XPermission extends JavaPlugin
 		}
 		
 		XUtil.onEnable();
+		updateCheck();
 		hookVaultPermissions();
 		loadPlugin();
 	}
@@ -98,6 +102,29 @@ public class XPermission extends JavaPlugin
 			this.getManager().unregisterPlayer(p);
 			this.getManager().registerPlayer(p);
 		}
+	}
+	
+	private void updateCheck()
+	{
+		if (SettingManager.getInstance().hasCheckVersion())
+		{
+			try
+			{
+				Updater updater = new Updater(this, 266896, this.getFile(), UpdateType.NO_DOWNLOAD, true);
+				if (updater.getResult() == UpdateResult.UPDATE_AVAILABLE) {
+				    XUtil.info("New version available! " + updater.getLatestName());
+				}
+			}
+			catch(Exception e)
+			{
+				XUtil.severe("Can't generate checkUpdate webrequest");
+			}
+		}
+	}
+
+	public static XPermission getInstance()
+	{
+		return instance;
 	}
 	
 	
@@ -296,11 +323,6 @@ public class XPermission extends JavaPlugin
 	public SettingManager getSettingManager()
 	{
 		return this.settings;
-	}
-
-	public static XPermission getInstance()
-	{
-		return instance;
 	}
 
 	public PermissionManager getManager()

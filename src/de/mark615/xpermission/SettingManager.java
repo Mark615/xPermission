@@ -424,6 +424,11 @@ public class SettingManager
     	return !config.getBoolean("rank.disable-count-afktime", false);
     }
     
+    public boolean hasCheckVersion()
+    {
+    	return config.getBoolean("updatecheck", true);
+    }
+    
 
 //---------Message section
     

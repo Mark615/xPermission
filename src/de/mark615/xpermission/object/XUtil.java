@@ -10,10 +10,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 import de.mark615.xpermission.SettingManager;
 import de.mark615.xpermission.XPermission;
 
@@ -129,8 +125,6 @@ public class XUtil
 		{
 			severe("Can't generate onEnable webrequest");
 		}
-		
-		checkUpdate();
 	}
 	
 	public static void onDisable()
@@ -142,23 +136,6 @@ public class XUtil
 		catch(Exception e)
 		{
 			severe("Can't generate onDisable webrequest");
-		}
-	}
-	
-	private static void checkUpdate()
-	{
-		try
-		{
-		    JsonElement jsonelement = new JsonParser().parse(sendGet("checkversion?type=xPermission&build=" + XPermission.BUILD));
-		    JsonObject json = jsonelement.getAsJsonObject();
-			if (json.has("build") && json.get("build").getAsInt() > XPermission.BUILD)
-			{
-				info("A newer version of xPermission is avaible. V." + json.get("version").getAsString());
-			}
-		}
-		catch(Exception e)
-		{
-			severe("Can't generate checkUpdate webrequest");
 		}
 	}
 	

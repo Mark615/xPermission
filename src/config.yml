@@ -2,3 +2,5 @@ first-join-message: true
 
 rank:
   disable-count-afktime: false
+
+updatecheck: true
