@@ -4,11 +4,16 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import de.mark615.xpermission.SettingManager;
 import de.mark615.xpermission.XPermission;
@@ -88,7 +93,7 @@ public class XUtil
 		if (s instanceof Player)
 			usage = ChatColor.RED + usage;
 		
-		sendMessage(s, usage);
+		sendMessage(s, usage, true);
 	}
 	
 	public static void sendCommandInfo(CommandSender s, String info)
@@ -96,7 +101,7 @@ public class XUtil
 		if (s instanceof Player)
 			info = ChatColor.GREEN + info;
 		
-		sendMessage(s, info);
+		sendMessage(s, info, true);
 	}
 	
 	public static void sendCommandHelp(CommandSender s, String help)
@@ -104,7 +109,7 @@ public class XUtil
 		if (s instanceof Player)
 			help = ChatColor.YELLOW + help;
 		
-		sendMessage(s, help);
+		sendMessage(s, help, true);
 	}
 	
 	public static void sendCommandError(CommandSender s, String error)
@@ -112,18 +117,77 @@ public class XUtil
 		if (s instanceof Player)
 			error = ChatColor.RED + error;
 		
-		sendMessage(s, error);
+		sendMessage(s, error, true);
+	}
+	
+	public static void sendMessage(Player p, String info)
+	{
+		sendMessage(p, info);
 	}
 	
 	public static void onEnable()
 	{
+		if (onStart())
+		{
+			try
+			{
+				String value = sendGet("setmode?uuid=" + SettingManager.getInstance().getAPIKey().toString() + "&type=xPermission&mode=on&build=" + XPermission.BUILD);
+				JsonElement parser = new JsonParser().parse(value);
+				JsonObject json = parser.getAsJsonObject();
+				if (json.has("dataid"))
+				{
+					SettingManager.getInstance().setDataID(json.get("dataid").getAsInt());
+				}
+			}
+			catch(Exception e)
+			{
+				severe("Can't generate onEnable webrequest");
+				debug(e);
+			}
+		}
+	}
+	
+	private static boolean onStart()
+	{
 		try
 		{
-			sendGet("setmode?type=xPermission&mode=on&build=" + XPermission.BUILD);
+			String url = "startup?servername=" + Bukkit.getServerName() + "";
+			if (SettingManager.getInstance().getAPIKey() != null)
+			{
+				url = url + "&uuid=" + SettingManager.getInstance().getAPIKey().toString();
+			}
+			String value = sendGet(url);
+			if (value != null && value.length() != 0)
+			{
+				JsonElement parser = new JsonParser().parse(value);
+				JsonObject json = parser.getAsJsonObject();
+				if (json.has("error"))
+				{
+					severe("JSON error: " + json.get("error").getAsString());
+					if (json.has("action") && json.get("action").getAsString().equalsIgnoreCase("dropUUID"))
+					{
+						if (UUID.fromString(json.get("uuid").getAsString()).equals(SettingManager.getInstance().getAPIKey()))
+						{
+							SettingManager.getInstance().setAPIKey(null);
+							return onStart();
+						}
+					}
+				}
+				else
+				if (json.has("uuid"))
+				{
+					SettingManager.getInstance().setAPIKey(UUID.fromString(json.get("uuid").getAsString()));
+					SettingManager.getInstance().saveConfig();
+				}
+				return true;
+			}
+			return false;
 		}
 		catch(Exception e)
 		{
 			severe("Can't generate onEnable webrequest");
+			debug(e);
+			return false;
 		}
 	}
 	
@@ -131,11 +195,13 @@ public class XUtil
 	{
 		try
 		{
-			sendGet("setmode?type=xPermission&mode=off&build=" + XPermission.BUILD);
+			sendGet("setmode?uuid=" + SettingManager.getInstance().getAPIKey().toString() + "&dataid=" + SettingManager.getInstance().getDataID() + "&" + 
+					"type=xPermission&mode=off&build=" + XPermission.BUILD);
 		}
 		catch(Exception e)
 		{
 			severe("Can't generate onDisable webrequest");
+			debug(e);
 		}
 	}
 	

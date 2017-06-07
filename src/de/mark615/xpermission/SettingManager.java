@@ -38,6 +38,8 @@ public class SettingManager
    
     FileConfiguration permission;
     File pFile;
+    
+    private int dataID;
    
     @SuppressWarnings("deprecation")
 	public void setup(Plugin p)
@@ -427,6 +429,26 @@ public class SettingManager
     public boolean hasCheckVersion()
     {
     	return config.getBoolean("updatecheck", true);
+    }
+    
+    public void setAPIKey(UUID uuid)
+    {
+    	config.set("apikey", uuid.toString());
+    }
+    
+    public UUID getAPIKey()
+    {
+    	return config.getString("apikey", null) == null ? null : UUID.fromString(config.getString("apikey"));
+    }
+    
+    public void setDataID(int dataID)
+    {
+    	this.dataID = dataID;
+    }
+    
+    public int getDataID()
+    {
+    	return dataID;
     }
     
 
