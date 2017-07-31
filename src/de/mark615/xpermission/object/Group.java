@@ -1,24 +1,29 @@
 package de.mark615.xpermission.object;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.configuration.ConfigurationSection;
+
+import com.mysql.jdbc.interceptors.SessionAssociationInterceptor;
+
+import de.mark615.xpermission.SettingManager;
 
 public class Group {
 
 	private String name = null;
-	private boolean defaultGroup = false;
 	private String prefix = null;
 	private String suffix = null;
+	private boolean defaultGroup = false;
 	private String inheriance = null;
 	private int rank = 0;
 	private long upgrade = 0;
-	private List<String> permissions;
+	private Map<String, Boolean> permissions;
 	
 	public Group(ConfigurationSection section)
 	{
-		permissions = new ArrayList<>();
+		permissions = new HashMap<>();
 		name = section.getName();
 		prefix = section.getString("prefix", "§f");
 		suffix = section.getString("suffix", "§f");
@@ -26,7 +31,19 @@ public class Group {
 		inheriance = section.getString("inheriance", "");
 		rank = section.getInt("rank", 1);
 		upgrade = section.getInt("upgrade", 0);
-		permissions = section.getStringList("permission");
+		loadPermission(section);
+	}
+	
+	private void loadPermission(ConfigurationSection section)
+	{
+		List<String> perms = section.getStringList("permissions.groups." + name);
+		if (perms != null)
+		{
+			for (String key : perms)
+			{
+				SettingManager.getInstance().calculatePermission(permissions, key);
+			}
+		}
 	}
 	
 	
@@ -60,9 +77,27 @@ public class Group {
 		return rank;
 	}
 	
-	public List<String> getPermissions()
+	public boolean hasPermission(String permission)
 	{
-		return permissions;
+		return permissions.containsKey(permission) ? permissions.get(permission) : false;
+	}
+	
+	public boolean removePermission(String permission)
+	{
+		if (!hasPermission(permission))
+			return false;
+		
+		permissions.put(permission, false);
+		return true;
+	}
+	
+	public boolean addPermission(String permission)
+	{
+		if (hasPermission(permission))
+			return false;
+		
+		permissions.put(permission, true);
+		return true;
 	}
 	
 	public void setDefault(boolean value)

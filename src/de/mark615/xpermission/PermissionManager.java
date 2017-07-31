@@ -73,7 +73,7 @@ public class PermissionManager
 	        }	
 	
 	        permissible.recalculatePermissions();
-			plugin.getManager().loadPlayerPermission(p, permissible);
+			loadPlayerPermission(p, permissible);
 		}
 		catch (Throwable ex)
 		{
@@ -84,8 +84,6 @@ public class PermissionManager
 	private void loadPlayerPermission(Player p, XPermissible permissible)
 	{	
 		settings.isPlayerFirstJoin(p);
-		p.setPlayerListName(settings.getPlayerDisplayName(p));
-		p.setDisplayName(settings.getPlayerDisplayName(p));
 
 		permissible.setOp(settings.isPlayerOp(p));
 		

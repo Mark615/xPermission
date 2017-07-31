@@ -1,6 +1,8 @@
 package de.mark615.xpermission.object;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -21,23 +23,31 @@ public class XPlayerSubject
 	private XPermissible permissible = null;
 	private XPermissionTree tree = null;
 	private Group group = null;
+	private List<String> groups = null;
 	private long firstLogin = 0;
 	private long lastLogin = 0;
 	private long afkStartTime = 0;
 	private long afkTime = 0;
-	private boolean afk;
+	private boolean afk = false;
+	private String prefix = null;
+	private String suffix = null;
 	
 	public XPlayerSubject(UUID uuid, XPermissible permissible, ConfigurationSection section)
 	{
 		this.uuid = uuid;
 		this.permissible = permissible;
 		this.permission = new HashMap<>();
+		this.groups = new ArrayList<>();
 		this.lastLogin = System.currentTimeMillis();
 		if (section != null)
 		{
 			this.firstLogin = section.getLong("firstLogin", 0);
 			section.set("lastLogin", this.lastLogin);
 		}
+		
+		this.prefix = SettingManager.getInstance().getPlayerPrefix(uuid);
+		this.suffix = SettingManager.getInstance().getPlayerSuffix(uuid);
+		this.groups = SettingManager.getInstance().getXPlayerSubjectGroups(uuid);
 	}
 	
 	public void setPermission(UUID uuid, String perm, int value)
@@ -184,6 +194,36 @@ public class XPlayerSubject
 	public Player getPlayer()
 	{
 		return Bukkit.getPlayer(uuid);
+	}
+
+	public String getPrefix()
+	{
+		return prefix;
+	}
+
+	public void setPrefix(String prefix)
+	{
+		this.prefix = prefix;
+	}
+
+	public String getSuffix()
+	{
+		return suffix;
+	}
+
+	public void setSuffix(String suffix)
+	{
+		this.suffix = suffix;
+	}
+	
+	public boolean inGroup(String group)
+	{
+		return groups.contains(group);
+	}
+	
+	public List<String> getGroupList()
+	{
+		return groups;
 	}
 	
 	

@@ -24,10 +24,10 @@ public class CommandXPerm extends XCommand
 	}
 
 	@Override
-	public void fillSubCommands(List<String> subcommands)
+	public void fillSubCommands(List<XSubCommand> subcommands)
 	{
-		subcommands.add("reload");
-		subcommands.add("op");
+		subcommands.add(new XSubCommand("reload"));
+		subcommands.add(new XSubCommand("op"));
 	}
 	
 
@@ -41,89 +41,79 @@ public class CommandXPerm extends XCommand
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public boolean run(CommandSender sender, Command command, String s, String[] args)
+	public XCommandReturnType run(CommandSender sender, Command command, String s, String[] args)
 	{
-		if(args.length > 0)
+		XCommandReturnType type = null;
+		
+		if (!this.isSubCommand(args[0]))
 		{
-			if (args[0].equalsIgnoreCase("help") || args[0].equals("?"))
+			XUtil.sendCommandUsage(sender, "use: /xperm <help/?> " + ChatColor.YELLOW + "- for help");
+			return XCommandReturnType.NOCOMMAND;
+		}
+		
+		if (matchesSubCommand("reload", args[0]))
+		{
+			if (!matchPermission(sender, "xperm.perm.reload"))
 			{
-				showHelp(sender);
-				return true;
+				this.hasNoPermission();
+				return XCommandReturnType.NOPERMISSION;
 			}
-			
-			if (!this.containsSubCommand(args[0]))
+			reload(sender);
+			return XCommandReturnType.NONE;
+		}
+		
+		if (args.length < 2)
+		{
+			XUtil.sendCommandUsage(sender, "use: /xperm " + args[0] + " <player>");
+			return XCommandReturnType.NONE;
+		}
+		
+		Player target = Bukkit.getPlayer(args[1]);
+
+		if (target == null)
+		{
+			XUtil.sendFileMessage(sender, "command.player-not-found", ChatColor.RED);
+			return XCommandReturnType.NOPLAYERMATCH;
+		}
+		
+		if (matchesSubCommand("op", args[0]))
+		{
+			boolean me = false;
+			if ((sender instanceof Player) && (((Player) sender).getName().equals(target.getName())))
+				me = true;
+			if (me)
 			{
-				XUtil.sendCommandUsage(sender, "use: /xperm <help/?> " + ChatColor.YELLOW + "- for help");
-				return true;
-			}
-			
-			if (args[0].equalsIgnoreCase("reload"))
-			{
-				if (!matchPermission(sender, "xperm.perm.reload"))
+				if (!matchPermission(sender, "xperm.perm.op.me"))
 				{
 					this.hasNoPermission();
-					return false;
+					return XCommandReturnType.NOCOMMAND;
 				}
-				return reload(sender);
+			}
+			else
+			{
+				if (!matchPermission(sender, "xperm.perm.op.other"))
+				{
+					this.hasNoPermission();
+					return XCommandReturnType.NOPERMISSION;
+				}
 			}
 			
-			if (args.length < 2)
+			setPlayerOP(target);
+			if (target.isOp())
 			{
-				XUtil.sendCommandUsage(sender, "use: /xperm " + args[0] + " <player>");
-				return true;
+				if (!me)
+					XUtil.sendCommandInfo(sender, XUtil.getMessage("command.xperm.op.senderInfoAdd").replace("%target%", target.getName()));
+				XUtil.sendCommandInfo(target, XUtil.getMessage("command.xperm.op.targetInfoAdd").replace("%target%", target.getName()));
 			}
-			
-			Player target = Bukkit.getPlayer(args[1]);
-
-			if (target == null)
+			else
 			{
-				XUtil.sendFileMessage(sender, "command.player-not-found", ChatColor.RED);
-				return true;
+				if (!me)
+					XUtil.sendCommandInfo(sender, XUtil.getMessage("command.xperm.op.senderInfoRemove").replace("%target%", target.getName()));
+				XUtil.sendCommandInfo(target, XUtil.getMessage("command.xperm.op.targetInfoRemove").replace("%target%", target.getName()));
 			}
-			
-			if (args[0].equalsIgnoreCase("op"))
-			{
-				boolean me = false;
-				if ((sender instanceof Player) && (((Player) sender).getName().equals(target.getName())))
-					me = true;
-				if (me)
-				{
-					if (!matchPermission(sender, "xperm.perm.op.me"))
-					{
-						this.hasNoPermission();
-						return false;
-					}
-				}
-				else
-				{
-					if (!matchPermission(sender, "xperm.perm.op.other"))
-					{
-						this.hasNoPermission();
-						return false;
-					}
-				}
-				
-				setPlayerOP(target);
-				if (target.isOp())
-				{
-					if (!me)
-						XUtil.sendCommandInfo(sender, XUtil.getMessage("command.xperm.op.senderInfoAdd").replace("%target%", target.getName()));
-					XUtil.sendCommandInfo(target, XUtil.getMessage("command.xperm.op.targetInfoAdd").replace("%target%", target.getName()));
-				}
-				else
-				{
-					if (!me)
-						XUtil.sendCommandInfo(sender, XUtil.getMessage("command.xperm.op.senderInfoRemove").replace("%target%", target.getName()));
-					XUtil.sendCommandInfo(target, XUtil.getMessage("command.xperm.op.targetInfoRemove").replace("%target%", target.getName()));
-				}
-				return true;
-			}
+			return XCommandReturnType.SUCCESS;
 		}
-		else
-		{
-			showHelp(sender);
-		}
-		return true;
+		return type;
 	}
 	
 	private void setPlayerOP(Player target)
@@ -144,12 +134,12 @@ public class CommandXPerm extends XCommand
 			SettingManager.getInstance().reloadMessage();
 			SettingManager.getInstance().reloadPermission();
 			this.plugin.loadPlugin();
-			XUtil.sendCommandInfo(sender, XPermission.PLUGIN_NAME_SHORT + XUtil.getMessage("command.xperm.reload.success"));
+			XUtil.sendCommandInfo(sender, XUtil.getMessage("command.xperm.reload.success"));
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
-			XUtil.sendCommandError(sender, XPermission.PLUGIN_NAME_SHORT + XUtil.getMessage("command.xperm.reload.error"));
+			XUtil.sendCommandError(sender, XUtil.getMessage("command.xperm.reload.error"));
 		}
 		return true;
 	}

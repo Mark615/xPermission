@@ -83,6 +83,12 @@ public class XPermissible extends PermissibleBase
 
     private boolean getPermissionValue(String permission, String type)
     {
+    	if (permission == null)
+    		return false;
+    	
+    	if (permission.trim().isEmpty())
+    		return true;
+    	
     	XPermissionTree nodeTree = subject.getPermissions(player);
     	if (type.equalsIgnoreCase("get"))
     	{

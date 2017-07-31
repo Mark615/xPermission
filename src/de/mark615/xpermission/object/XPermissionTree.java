@@ -60,8 +60,6 @@ public class XPermissionTree
 	
 	public boolean get(String name)
 	{
-		if (name == null)
-			return false;
 		String[] perm  = name.split("\\.");
 		
 		for (XPermissionNode node : nodes)
@@ -92,8 +90,6 @@ public class XPermissionTree
 	
 	public boolean has(String name)
 	{
-		if (name == null)
-			return false;
 		String[] perm  = name.split("\\.");
 		
 		int hasop = 0;

@@ -27,11 +27,12 @@ import de.mark615.xpermission.object.Updater;
 import de.mark615.xpermission.object.Updater.UpdateResult;
 import de.mark615.xpermission.object.Updater.UpdateType;
 import de.mark615.xpermission.object.XUtil;
+import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
 
 public class XPermission extends JavaPlugin
 {
-	public static final int BUILD = 5;
+	public static final int BUILD = 6;
 	public static final String PLUGIN_NAME = "[xPermission] ";
 	public static final String PLUGIN_NAME_SHORT = "[xPerm] ";
 	
@@ -76,7 +77,11 @@ public class XPermission extends JavaPlugin
 		
 		XUtil.onEnable();
 		updateCheck();
-		hookVaultPermissions();
+		
+		XVaultPermission permission = new XVaultPermission(this);
+		hookVaultPermissions(permission);
+		hookVaultChat(new XVaultChat(this, permission));
+		
 		loadPlugin();
 	}
 
@@ -180,13 +185,23 @@ public class XPermission extends JavaPlugin
     	return xapiconn != null;
 	}
 	
-	private boolean hookVaultPermissions()
+	private boolean hookVaultPermissions(XVaultPermission vault)
 	{
 		if (getServer().getPluginManager().isPluginEnabled("Vault"))
 		{
-            final XVault vault = new XVault(this);
             getServer().getServicesManager().register(Permission.class, vault, this, ServicePriority.High); // Hook into vault
             XUtil.info("Activate Vault permissioninterfaces");
+            return true;
+		}
+		return false;
+	}
+	
+	private boolean hookVaultChat(XVaultChat vault)
+	{
+		if (getServer().getPluginManager().isPluginEnabled("Vault"))
+		{
+            getServer().getServicesManager().register(Chat.class, vault, this, ServicePriority.High); // Hook into vault
+            XUtil.info("Activate Vault chatinterfaces");
             return true;
 		}
 		return false;
@@ -273,11 +288,11 @@ public class XPermission extends JavaPlugin
 				commandSender.sendMessage(ChatColor.RED + XUtil.getMessage("command.nopermission"));
 				return true;
 			}
-			return xCommand.run((Player) commandSender, command, s, args);
+			return xCommand.runCommand((Player) commandSender, command, s, args);
 		}
 		else
 		{
-			if (!xCommand.run(commandSender, command, s, args))
+			if (!xCommand.runCommand(commandSender, command, s, args))
 			{
 				commandSender.sendMessage(ChatColor.RED + XUtil.getMessage("command.nopermission"));
 			}

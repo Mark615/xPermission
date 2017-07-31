@@ -20,6 +20,8 @@ import de.mark615.xpermission.XPermission;
 
 public class XUtil
 {
+	private static boolean jsonMessage = false;
+	
 	public static void info(String info)
 	{
 		Bukkit.getLogger().info(XPermission.PLUGIN_NAME + info);
@@ -38,6 +40,11 @@ public class XUtil
 	public static void debug(Exception e)
 	{
 		e.printStackTrace();
+	}
+	
+	public static String replaceColorCodes(String message)
+	{
+		return ChatColor.translateAlternateColorCodes('&', message);
 	}
 	
 	public static String getMessage(String file)
@@ -127,24 +134,34 @@ public class XUtil
 	
 	public static void onEnable()
 	{
-		if (onStart())
+		if (!jsonMessage)
+			return;
+		
+		Bukkit.getServer().getScheduler().runTaskAsynchronously(XPermission.getInstance(), new Runnable()
 		{
-			try
+			@Override
+			public void run()
 			{
-				String value = sendGet("setmode?uuid=" + SettingManager.getInstance().getAPIKey().toString() + "&type=xPermission&mode=on&build=" + XPermission.BUILD);
-				JsonElement parser = new JsonParser().parse(value);
-				JsonObject json = parser.getAsJsonObject();
-				if (json.has("dataid"))
+				if (onStart())
 				{
-					SettingManager.getInstance().setDataID(json.get("dataid").getAsInt());
-				}
+					try
+					{
+						String value = sendGet("setmode?uuid=" + SettingManager.getInstance().getAPIKey().toString() + "&type=xPermission&mode=on&build=" + XPermission.BUILD);
+						JsonElement parser = new JsonParser().parse(value);
+						JsonObject json = parser.getAsJsonObject();
+						if (json.has("dataid"))
+						{
+							SettingManager.getInstance().setDataID(json.get("dataid").getAsInt());
+						}
+					}
+					catch(Exception e)
+					{
+						severe("Can't generate onEnable webrequest");
+						debug(e);
+					}
+				}				
 			}
-			catch(Exception e)
-			{
-				severe("Can't generate onEnable webrequest");
-				debug(e);
-			}
-		}
+		});
 	}
 	
 	private static boolean onStart()
@@ -193,6 +210,9 @@ public class XUtil
 	
 	public static void onDisable()
 	{
+		if (!jsonMessage)
+			return;
+		
 		try
 		{
 			sendGet("setmode?uuid=" + SettingManager.getInstance().getAPIKey().toString() + "&dataid=" + SettingManager.getInstance().getDataID() + "&" + 
@@ -202,7 +222,7 @@ public class XUtil
 		{
 			severe("Can't generate onDisable webrequest");
 			debug(e);
-		}
+		}	
 	}
 	
 	// HTTP GET request

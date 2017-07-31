@@ -267,7 +267,7 @@ public class SettingManager
     	}
     }
     
-    private void calculatePermission(Map<String, Boolean> playerPerms, String perm)
+    public void calculatePermission(Map<String, Boolean> playerPerms, String perm)
     {
 		int value = 0;
 		if (perm.startsWith("- "))
@@ -299,14 +299,6 @@ public class SettingManager
 			if (!playerPerms.containsKey(perm))
 				playerPerms.put(perm, true);
 		}
-    }
-    
-    public String getPlayerDisplayName(Player p)
-    {
-    	String path = "permissions.groups." + permission.getString("permissions." + p.getUniqueId().toString() + ".group"); 
-		String prefix = permission.getString(path + ".prefix").replace("&", "§");
-		String suffix = permission.getString(path + ".suffix").replace("&", "§");
-		return prefix + p.getName() + suffix + "" + ChatColor.RESET;
     }
     
     public boolean isPlayerOp(Player p)
@@ -370,6 +362,49 @@ public class SettingManager
 		section.set("group", subject.getGroup().getName());
 		section.set("lastLogin", subject.getLastLogin());
 		section.set("gameTime", subject.getTotalGameTime());
+	}
+	
+	public String getGroupPrefix(String group)
+	{
+		if (permission.getConfigurationSection("permissions.groups." + group) != null)
+		{
+			return permission.getString("permissions.groups." + group + ".prefix");
+		}
+		return null; 
+	}
+	
+	public String getGroupSuffix(String group)
+	{
+		if (permission.getConfigurationSection("permissions.groups." + group) != null)
+		{
+			return permission.getString("permissions.groups." + group + ".suffix");
+		}
+		return null; 
+	}
+    
+    public String getPlayerPrefix(UUID uuid)
+    {
+    	String path = "permissions.groups." + permission.getString("permissions." + uuid.toString() + ".group"); 
+		return XUtil.replaceColorCodes(permission.getString(path + ".prefix"));
+    }
+    
+    public String getPlayerSuffix(UUID uuid)
+    {
+    	String path = "permissions.groups." + permission.getString("permissions." + uuid.toString() + ".group"); 
+		return XUtil.replaceColorCodes(permission.getString(path + ".suffix"));
+    }
+	
+	public List<String> getXPlayerSubjectGroups(UUID uuid)
+	{
+    	String group = permission.getString("permissions." + uuid.toString() + ".group");
+		List<String> list = new ArrayList<>();
+		while (permission.getConfigurationSection("permission.groups." + group) != null && !list.contains(group))
+		{
+			list.add(group);
+			group = permission.getString("permission.groups." + group + ".inheriance");
+		}
+		
+		return list;
 	}
 	
 	public ConfigurationSection getPlayerConfigurationsection(UUID uuid)
