@@ -39,7 +39,7 @@ public class CommandXRank extends XCommand
 		p.sendMessage(ChatColor.GREEN + "/xrank info <player>" + ChatColor.YELLOW + " - " + XUtil.getMessage("command.xrank.info.description"));
 		if(matchPermission(p, "xperm.rank.set")) p.sendMessage(ChatColor.GREEN + "/xrank up <player>" + ChatColor.YELLOW + " - " + XUtil.getMessage("command.xrank.up.description"));
 		if(matchPermission(p, "xperm.rank.set")) p.sendMessage(ChatColor.GREEN + "/xrank down <player>" + ChatColor.YELLOW + " - " + XUtil.getMessage("command.xrank.down.description"));
-		if(matchPermission(p, "xperm.rank.set")) p.sendMessage(ChatColor.GREEN + "/xrank set <player>" + ChatColor.YELLOW + " - " + XUtil.getMessage("command.xrank.set.description"));
+		if(matchPermission(p, "xperm.rank.set")) p.sendMessage(ChatColor.GREEN + "/xrank set <player> <rank>" + ChatColor.YELLOW + " - " + XUtil.getMessage("command.xrank.set.description"));
 	}
 
 	@SuppressWarnings("deprecation")

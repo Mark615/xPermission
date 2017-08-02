@@ -15,6 +15,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import de.mark615.xapi.object.Updater;
+import de.mark615.xapi.object.Updater.UpdateResult;
+import de.mark615.xapi.object.Updater.UpdateType;
 import de.mark615.xpermission.SettingManager;
 import de.mark615.xpermission.XPermission;
 
@@ -131,6 +134,35 @@ public class XUtil
 	{
 		sendMessage(p, info);
 	}
+
+	
+	
+	public static void updateCheck(final XPermission plugin)
+	{
+		Bukkit.getServer().getScheduler().runTaskTimer(plugin, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (SettingManager.getInstance().hasCheckVersion())
+				{
+					try
+					{
+						Updater updater = new Updater(plugin, 266896, plugin.getDataFolder(), UpdateType.NO_DOWNLOAD, true);
+						if (updater.getResult() == UpdateResult.UPDATE_AVAILABLE) {
+						    XUtil.info("New version available! " + updater.getLatestName());
+						}
+					}
+					catch(Exception e)
+					{
+						XUtil.severe("Can't check version at Bukkit.com");
+					}
+				}
+			}
+		}, 20, 6 * 60 * 60 * 20);
+	}	
+	
+	
 	
 	public static void onEnable()
 	{
