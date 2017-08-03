@@ -138,7 +138,7 @@ public class CommandXPerm extends XCommand
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			XUtil.severe("unable to reload permission", e);
 			XUtil.sendCommandError(sender, XUtil.getMessage("command.xperm.reload.error"));
 		}
 		return true;

@@ -75,9 +75,9 @@ public class PermissionManager
 	        permissible.recalculatePermissions();
 			loadPlayerPermission(p, permissible);
 		}
-		catch (Throwable ex)
+		catch (Exception e)
 		{
-			ex.printStackTrace();
+			XUtil.severe("unable to register player", e);
 		}
 	}
 	

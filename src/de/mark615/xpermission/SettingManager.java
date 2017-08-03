@@ -80,7 +80,7 @@ public class SettingManager
 		}
 		catch (IOException e)
 		{
-			XUtil.severe("Could not save message.yml!");
+			XUtil.severe("Could not save message.yml!", e);
 		}
 		
        
@@ -92,7 +92,7 @@ public class SettingManager
                 pFile.createNewFile();
             }
             catch (IOException e) {
-                XUtil.severe("Could not create permission.yml!");
+                XUtil.severe("Could not create permission.yml!", e);
             }
         }
        
@@ -163,7 +163,6 @@ public class SettingManager
 			Group group = new Group(permission.getConfigurationSection("permissions.groups." + gp));
 			groups.add(group);
 		}
-		XUtil.info("Permissiongroups loaded successfully");
 		
 		return groups;
     }
@@ -351,7 +350,7 @@ public class SettingManager
 		}
 		catch (NullPointerException ex)
 		{
-			ex.printStackTrace();
+			XUtil.severe("unable to generate player in permission.yml", ex);
 			p.sendMessage(ChatColor.RED + "Error! See Console For More Information!");
 		}
 	}
@@ -419,7 +418,7 @@ public class SettingManager
         }
         catch (IOException e)
         {
-            XUtil.severe("Could not save permission.yml!");
+            XUtil.severe("Could not save permission.yml!", e);
         }
     }
    
@@ -442,7 +441,7 @@ public class SettingManager
             config.save(cFile);
         }
         catch (IOException e) {
-        	XUtil.severe("Could not save config.yml!");
+        	XUtil.severe("Could not save config.yml!", e);
         }
     }
    

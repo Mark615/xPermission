@@ -39,6 +39,11 @@ public class XUtil
 		Bukkit.getLogger().severe(XPermission.PLUGIN_NAME + severe);
 	}
 	
+	public static void severe(String severe, Exception e)
+	{
+		severe(severe);
+	}
+	
 	public static void debug(Exception e)
 	{
 		e.printStackTrace();
