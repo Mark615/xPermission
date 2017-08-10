@@ -43,14 +43,19 @@ public class PermissionManager
 		}
 	}
 	
-	public void registerPlayer(Player p)
+	public void clearXPlayerSubjectList()
+	{
+		permissionList.clear();
+	}
+	
+	public void registerPlayerJoin(Player p)
 	{
 		if (permissionList.get(p.getUniqueId()) != null)
 			return;
 		
 		try {
 	        XPermissible permissible = new XPermissible(p, plugin);
-			permissionList.put(p.getUniqueId(), new XPlayerSubject(p.getUniqueId(), permissible, settings.getPlayerConfigurationsection(p.getUniqueId())));
+			permissionList.put(p.getUniqueId(), new XPlayerSubject(p, permissible, settings.getPlayerConfigurationsection(p.getUniqueId())));
 	        permissible.register();
 	
 	        boolean success = false, found = false;
@@ -83,8 +88,6 @@ public class PermissionManager
 	
 	private void loadPlayerPermission(Player p, XPermissible permissible)
 	{	
-		settings.isPlayerFirstJoin(p);
-
 		permissible.setOp(settings.isPlayerOp(p));
 		
 		Group group = plugin.getGroup(settings.getPlayerRank(p.getUniqueId()));

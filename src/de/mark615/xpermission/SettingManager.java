@@ -1,8 +1,9 @@
 package de.mark615.xpermission;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,60 +42,70 @@ public class SettingManager
     
     private int dataID;
    
-    @SuppressWarnings("deprecation")
+    
 	public void setup(Plugin p)
     {
     	if (!p.getDataFolder().exists())
     		p.getDataFolder().mkdir();
     	
+    	//load config
     	cFile = new File(p.getDataFolder(), "config.yml");
     	if(!cFile.exists())
     		p.saveResource("config.yml", true);
-
-		//Store it
 		config = YamlConfiguration.loadConfiguration(cFile);
 		config.options().copyDefaults(true);
 		
-		//Load default messages
-		InputStream defConfigStream = p.getResource("config.yml");
-		YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
-		config.setDefaults(defConfig);
+		//Load default config
+		try
+		{
+			BufferedReader br = new BufferedReader(new InputStreamReader(p.getResource("config.yml"), "UTF-8"));
+			YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(br);
+			config.setDefaults(defConfig);	
+		}
+		catch(Exception e)
+		{
+			XUtil.severe("cant copy default config.yml", e);
+		}
+        
 		
-        
-        
+        //load message
         mFile = new File(p.getDataFolder(), "messages.yml");
         if(!mFile.exists())
 			p.saveResource("messages.yml", true);
-		
-		//Store it
 		message = YamlConfiguration.loadConfiguration(mFile);
 		message.options().copyDefaults(true);
 		
 		//Load default messages
-		InputStream defMessageStream = p.getResource("messages.yml");
-		YamlConfiguration defMessages = YamlConfiguration.loadConfiguration(defMessageStream);
-		message.setDefaults(defMessages);
+		try
+		{
+			BufferedReader br = new BufferedReader(new InputStreamReader(p.getResource("messages.yml"), "UTF-8"));
+			YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(br);
+			message.setDefaults(defConfig);	
+		}
+		catch(Exception e)
+		{
+			XUtil.severe("cant copy default message.yml", e);
+		}
 		try
 		{
 			message.save(mFile);
 		}
 		catch (IOException e)
 		{
-			XUtil.severe("Could not save message.yml!", e);
+			XUtil.severe("Could not save message.yml!");
 		}
 		
-       
-		
-        pFile = new File(p.getDataFolder(), "permission.yml");
-        if (!pFile.exists())
-        {
-            try {
-                pFile.createNewFile();
-            }
-            catch (IOException e) {
-                XUtil.severe("Could not create permission.yml!", e);
-            }
-        }
+		//load permission
+		pFile = new File(p.getDataFolder(), "permission.yml");
+		if (!pFile.exists())
+		{
+			try {
+				pFile.createNewFile();
+			}
+			catch (IOException e) {
+				XUtil.severe("Could not create permission.yml!", e);
+			}
+		}
        
         permission = YamlConfiguration.loadConfiguration(pFile);
         if (permission.getString("permissions") == null)

@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -42,6 +43,7 @@ public class XUtil
 	public static void severe(String severe, Exception e)
 	{
 		severe(severe);
+		e.printStackTrace();
 	}
 	
 	public static void debug(Exception e)
@@ -141,7 +143,7 @@ public class XUtil
 
 	
 	
-	public static void updateCheck(final XPermission plugin)
+	public static void updateCheck(final JavaPlugin plugin)
 	{
 		Bukkit.getServer().getScheduler().runTaskTimer(plugin, new Runnable()
 		{

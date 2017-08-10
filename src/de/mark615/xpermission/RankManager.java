@@ -39,23 +39,26 @@ public class RankManager
 	{
 		for (Player player : Bukkit.getServer().getOnlinePlayers())
 		{
-			XPlayerSubject subject = this.plugin.getManager().getXPlayerSubject(player.getUniqueId()); 
-			long totalTime = subject.getTotalGameTime();
-			for (Group group : this.plugin.getGroups())
+			XPlayerSubject subject = this.plugin.getManager().getXPlayerSubject(player.getUniqueId());
+			if (subject != null)
 			{
-				if (group.getRank() != 0 && group.getUpgradeTime() != 0)
+				long totalTime = subject.getTotalGameTime();
+				for (Group group : this.plugin.getGroups())
 				{
-					if ((group.getUpgradeTime() * 1000 * 60) < totalTime && group.getRank() > subject.getGroup().getRank())
+					if (group.getRank() != 0 && group.getUpgradeTime() != 0)
 					{
-						if (player.hasPermission("xperm.rank.auto"))
+						if ((group.getUpgradeTime() * 1000 * 60) < totalTime && group.getRank() > subject.getGroup().getRank())
 						{
-							try
+							if (player.hasPermission("xperm.rank.auto"))
 							{
-								changeRankTo(subject, group.getRank());
-								this.plugin.getAPI().createPlayerRankChangedEvent(subject.getPlayer(), subject.getGroup().getRank(), group.getRank(), true);
+								try
+								{
+									changeRankTo(subject, group.getRank());
+									this.plugin.getAPI().createPlayerRankChangedEvent(subject.getPlayer(), subject.getGroup().getRank(), group.getRank(), true);
+								}
+								catch (RankNotFoundException e)
+								{}
 							}
-							catch (RankNotFoundException e)
-							{}
 						}
 					}
 				}

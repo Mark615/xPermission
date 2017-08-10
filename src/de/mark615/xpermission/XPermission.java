@@ -80,6 +80,7 @@ public class XPermission extends JavaPlugin
 		hookVaultChat(new XVaultChat(this, permission));
 		
 		loadPlugin();
+		XUtil.info("Enabled Build " + BUILD);
 	}
 
 	@Override
@@ -102,7 +103,8 @@ public class XPermission extends JavaPlugin
 		for (Player p : Bukkit.getServer().getOnlinePlayers())
 		{
 			this.getManager().unregisterPlayer(p);
-			this.getManager().registerPlayer(p);
+			this.getManager().clearXPlayerSubjectList();
+			this.getManager().registerPlayerJoin(p);
 		}
 	}
 
