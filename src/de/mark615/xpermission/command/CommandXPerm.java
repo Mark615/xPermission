@@ -39,7 +39,6 @@ public class CommandXPerm extends XCommand
 		if(matchPermission(p, "xperm.perm.op")) p.sendMessage(ChatColor.GREEN + "/xperm op <player>" + ChatColor.YELLOW + " - "+ XUtil.getMessage("command.xperm.op.description"));
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public XCommandReturnType run(CommandSender sender, Command command, String s, String[] args)
 	{
@@ -133,7 +132,7 @@ public class CommandXPerm extends XCommand
 			SettingManager.getInstance().reloadConfig();
 			SettingManager.getInstance().reloadMessage();
 			SettingManager.getInstance().reloadPermission();
-			this.plugin.loadPlugin();
+			plugin.getManager().reloadAllPlayer();
 			XUtil.sendCommandInfo(sender, XUtil.getMessage("command.xperm.reload.success"));
 		}
 		catch (Exception e)

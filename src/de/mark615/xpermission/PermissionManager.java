@@ -19,43 +19,43 @@ import de.mark615.xpermission.object.XUtil;
 public class PermissionManager
 {
 	private XPermission plugin;
-	private Map<UUID, XPlayerSubject> permissionList; 
+	private Map<UUID, XPlayerSubject> player; 
 	SettingManager settings = SettingManager.getInstance();
 	
 	
 	public PermissionManager (XPermission plugin)
 	{
 		this.plugin = plugin;
-		this.permissionList = new HashMap<>();
+		this.player = new HashMap<>();
 	}
 	
 	public XPlayerSubject getXPlayerSubject(UUID uuid)
 	{
-		return permissionList.get(uuid);
+		return player.get(uuid);
 	}
 	
 	public void unregisterPlayer(Player p)
 	{
-		if (permissionList.get(p.getUniqueId()) != null)
+		if (player.get(p.getUniqueId()) != null)
 		{
-			settings.saveXPlayerSubject(permissionList.get(p.getUniqueId()));
-			permissionList.remove(p.getUniqueId());
+			settings.saveXPlayerSubject(player.get(p.getUniqueId()));
+			player.remove(p.getUniqueId());
 		}
 	}
 	
 	public void clearXPlayerSubjectList()
 	{
-		permissionList.clear();
+		player.clear();
 	}
 	
 	public void registerPlayerJoin(Player p)
 	{
-		if (permissionList.get(p.getUniqueId()) != null)
+		if (player.get(p.getUniqueId()) != null)
 			return;
 		
 		try {
 	        XPermissible permissible = new XPermissible(p, plugin);
-			permissionList.put(p.getUniqueId(), new XPlayerSubject(p, permissible, settings.getPlayerConfigurationsection(p.getUniqueId())));
+			player.put(p.getUniqueId(), new XPlayerSubject(p, permissible, settings.getPlayerConfigurationsection(p.getUniqueId())));
 	        permissible.register();
 	
 	        boolean success = false, found = false;
@@ -74,7 +74,7 @@ public class PermissionManager
 	        if (!found) {
 	            XUtil.info("No Permissible injector found for your server implementation!");
 	        } else if (!success) {
-	        	XUtil.info("Unable to inject PEX's permissible for " + p.getName());
+	        	XUtil.info("Unable to inject xPermission permissible for " + p.getName());
 	        }	
 	
 	        permissible.recalculatePermissions();
@@ -105,14 +105,15 @@ public class PermissionManager
 			else
 				group = plugin.getDefaultGroup();
 		}
-		permissionList.get(p.getUniqueId()).setGroup(group);
+		player.get(p.getUniqueId()).setGroup(group);
 
-		Map<String, Boolean> permissions = settings.getPlayerPermissionList(p.getUniqueId(), permissionList.get(p.getUniqueId()));
+		Map<String, Boolean> permissions = settings.getPlayerPermissionList(p.getUniqueId(), player.get(p.getUniqueId()));
 		for (String perm : permissions.keySet())
 		{
 			PermissionAttachment attachment = p.addAttachment(XPermission.getInstance(), perm, permissions.get(perm));
 			attachment.setPermission(perm, permissions.get(perm));
 		}
+		player.get(p.getUniqueId()).reloadPermissionTree();
 	}
 	
 	public void reloadAllPlayerPermission()
@@ -125,7 +126,16 @@ public class PermissionManager
 	
 	public void reloadPlayerPermission(Player p)
 	{
-		permissionList.get(p.getUniqueId()).clearPermission();
-		loadPlayerPermission(p, permissionList.get(p.getUniqueId()).getXPermissible());
+		player.get(p.getUniqueId()).getXPermissible().clearPermissions();
+		loadPlayerPermission(p, player.get(p.getUniqueId()).getXPermissible());
+	}
+	
+	public void reloadAllPlayer()
+	{
+		for (UUID uuid : player.keySet())
+		{
+			player.get(uuid).reload();
+			reloadPlayerPermission(player.get(uuid).getPlayer());
+		}
 	}
 }

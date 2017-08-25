@@ -42,7 +42,6 @@ public class CommandXRank extends XCommand
 		if(matchPermission(p, "xperm.rank.set")) p.sendMessage(ChatColor.GREEN + "/xrank set <player> <rank>" + ChatColor.YELLOW + " - " + XUtil.getMessage("command.xrank.set.description"));
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public XCommandReturnType run(CommandSender sender, Command command, String s, String[] args)
 	{
