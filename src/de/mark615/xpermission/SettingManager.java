@@ -119,14 +119,15 @@ public class SettingManager
         	permission.set(temp + ".inheriance", "default");
         	permission.set(temp + ".rank", "1");
         	permission.set(temp + ".permission", new String[]{"*", "*.*"});
+        	
+	        savePermission();
         }
         
         if (permission.getString("permissions.groups.default") == null)
         {
         	addDefault();
+	        savePermission();
         }
-
-    	savePermission();
     }
     
     public void checkPermissionFile()
@@ -400,7 +401,7 @@ public class SettingManager
     
     public String getPlayerPrefix(String player)
     {
-    	for (String key : permission.getKeys(false))
+    	for (String key : permission.getConfigurationSection("permissions.").getKeys(false))
     	{
     		String tempName = permission.getString("permissions." + key + ".name");
     		if (tempName != null && tempName.equalsIgnoreCase(player))
@@ -422,7 +423,7 @@ public class SettingManager
     
     public String getPlayerSuffix(String player)
     {
-    	for (String key : permission.getKeys(false))
+    	for (String key : permission.getConfigurationSection("permissions.").getKeys(false))
     	{
     		String tempName = permission.getString("permissions." + key + ".name");
     		if (tempName != null && tempName.equalsIgnoreCase(player))
@@ -456,18 +457,19 @@ public class SettingManager
    
     public void savePermission()
     {
-        try {
-        	permission.save(pFile);
-        }
-        catch (IOException e)
-        {
-            XUtil.severe("Could not save permission.yml!", e);
-        }
+    	try {
+    		permission.save(pFile);
+    	}
+    	catch (IOException e)
+    	{
+    		XUtil.severe("Could not save permission.yml!", e);
+    	}
     }
    
     public void reloadPermission()
     {
     	permission = YamlConfiguration.loadConfiguration(pFile);
+    	permission.options().copyDefaults(true);
     }
     
    

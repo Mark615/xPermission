@@ -20,11 +20,7 @@ public class XPlayerSubject extends XOfflinePlayerSubject
 		super(p.getUniqueId(), section);
 		this.permissible = permissible;
 		
-		if (section != null)
-		{
-			this.firstLogin = section.getLong("firstLogin", 0);
-		}
-		else
+		if (section == null)
 		{
 			SettingManager.getInstance().isPlayerFirstJoin(p);
 			section = SettingManager.getInstance().getPlayerConfigurationsection(uuid);
@@ -59,10 +55,10 @@ public class XPlayerSubject extends XOfflinePlayerSubject
 	
 	public void clearPermission()
 	{
+		tree = null;
 		permission.clear();
 	}
 	
-	@Override
 	public XPermissionTree getPermissions(Player p)
 	{
 		boolean reload = true;
@@ -75,7 +71,7 @@ public class XPlayerSubject extends XOfflinePlayerSubject
 		if ((System.currentTimeMillis() - lastRequest) > DEFAULTVALID_TIME)
 			reload = true;
 		
-		if (reload)
+		if (reload || (tree == null))
 		{
 			tree = new XPermissionTree();
 			for (UUID uuid : permission.keySet())
@@ -89,6 +85,11 @@ public class XPlayerSubject extends XOfflinePlayerSubject
 		}
 		
 		return tree;
+	}
+	
+	public void reloadPermissionTree()
+	{
+		tree = null;
 	}
 	
 	public XPermissible getXPermissible()

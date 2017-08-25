@@ -29,30 +29,12 @@ public class XVaultChat extends Chat
 	@Override
 	public String getPlayerPrefix(String world, String player)
 	{
-		/*
-		for (Player p : Bukkit.getServer().getOnlinePlayers())
-		{
-			if (p.getName().equals(player) && plugin.getManager().getXPlayerSubject(p.getUniqueId()) != null)
-			{
-				return plugin.getManager().getXPlayerSubject(p.getUniqueId()).getPrefix();
-			}
-		}*/
-		
 		return SettingManager.getInstance().getPlayerPrefix(player);
 	}
 
 	@Override
 	public String getPlayerSuffix(String world, String player)
-	{
-		/*
-		for (Player p : Bukkit.getServer().getOnlinePlayers())
-		{
-			if (p.getName().equals(player) && plugin.getManager().getXPlayerSubject(p.getUniqueId()) != null)
-			{
-				return plugin.getManager().getXPlayerSubject(p.getUniqueId()).getSuffix();
-			}
-		}*/
-		
+	{	
 		return SettingManager.getInstance().getPlayerSuffix(player);
 	}
 

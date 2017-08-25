@@ -29,14 +29,14 @@ public class XPermissionTree
 		
 		if (curNode == null)
 		{
-			XPermissionNode node = new XPermissionNode(perm[0], value);
+			XPermissionNode node = new XPermissionNode(perm[0], 0);
 			nodes.add(node);
 			curNode = node;
 		}
 
 		for (int i = 1; i < perm.length; i++)
 		{
-			curNode = addPermission0(curNode, perm[i], value);
+			curNode = addPermission0(curNode, perm[i], (i + 1) == perm.length ? value : 0);
 		}
 	}
 	
@@ -46,6 +46,8 @@ public class XPermissionTree
 		
 		if (tempNode.containsLeaf(perm))
 		{
+			if (value != 0)
+				tempNode.getLeaf(perm).setValue(value);
 			curNode = tempNode.getLeaf(perm);
 		}
 		else
@@ -90,7 +92,7 @@ public class XPermissionTree
 	
 	public boolean has(String name)
 	{
-		String[] perm  = name.split("\\.");
+		String[] perm = name.toLowerCase().split("\\.");
 		
 		int hasop = 0;
 		int hasPermission = 0;
@@ -98,7 +100,7 @@ public class XPermissionTree
 		{
 			if (node.getRoot().equals(perm[0]))
 			{
-				XPermissionNode childOpNode = node;
+				XPermissionNode childOpNode = null;
 				XPermissionNode childNode = node;
 				if (perm.length > 1)
 				{
@@ -108,20 +110,20 @@ public class XPermissionTree
 						childNode = has0(childNode, perm[i]);
 						if (childNode == null)
 							break;
-						
+
 						if (childNode.isOp())
 						{
-							hasop = childNode.isActive();
+							hasop = childNode.getValue();
 						}
 						else
 						if (childOpNode != null && childOpNode.isOp())
 						{
-							hasop = childOpNode.isActive(); 
+							hasop = childOpNode.getValue(); 
 						}
 						
 						if (perm.length == (i + 1))
 						{
-							hasPermission = childNode.isActive();
+							hasPermission = childNode.getValue();
 							break;
 						}
 						
@@ -129,20 +131,21 @@ public class XPermissionTree
 				}
 				else
 				{
-					hasPermission = childNode.isActive();
+					hasPermission = childNode.getValue();
 					break;
 				}
 			}
 		}
-		
+
+		/*
 		if (hasPermission == 0)
 		{
 			for (XPermissionNode node : nodes)
 			{
-				if (node.getRoot().equals("*") && node.isActive() == 1)
+				if (node.getRoot().equals("*") && node.getValue() == 1)
 					return true;
 			}
-		}
+		}*/
 		
 		if (hasPermission != 0)
 			return hasPermission == 1 ? true : false;

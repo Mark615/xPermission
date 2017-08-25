@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 
 import de.mark615.xpermission.SettingManager;
 
@@ -45,6 +44,16 @@ public class XOfflinePlayerSubject
 		}
 	}
 	
+	public void reload()
+	{
+		this.permission = new HashMap<>();
+		this.groups = new ArrayList<>();
+
+		this.prefix = SettingManager.getInstance().getPlayerPrefix(uuid);
+		this.suffix = SettingManager.getInstance().getPlayerSuffix(uuid);
+		this.groups = SettingManager.getInstance().getXPlayerSubjectGroups(uuid);
+	}
+	
 	public Map<String, Boolean> getPermissions()
 	{
 		Map<String, Boolean> perms = new HashMap<>();
@@ -57,29 +66,6 @@ public class XOfflinePlayerSubject
 		}
 		
 		return perms;
-	}
-	
-	public XPermissionTree getPermissions(Player p)
-	{
-		boolean reload = true;
-		
-		if ((System.currentTimeMillis() - lastRequest) > DEFAULTVALID_TIME)
-			reload = true;
-		
-		if (reload)
-		{
-			tree = new XPermissionTree();
-			for (UUID uuid : permission.keySet())
-			{
-				for (String key : permission.get(uuid).keySet())
-				{
-					tree.addPermission(key, permission.get(uuid).get(key));
-				}
-			}
-			lastRequest = System.currentTimeMillis();
-		}
-		
-		return tree;
 	}
 	
 	public UUID getUUID()

@@ -23,17 +23,18 @@ import de.mark615.xpermission.XPermission;
 public class XPermissible extends PermissibleBase
 {
 
-    private final Player player;
-    private final XPermission plugin;
+    private Player player;
+    private XPermission plugin;
     private XPlayerSubject subject;
     private Permissible previousPermissible;
-    private final Set<XPermissionAttachment> attachments = new HashSet<>();
+    private Set<XPermissionAttachment> attachments;
 
     public XPermissible(Player player, XPermission plugin) throws ExecutionException, InterruptedException
     {
         super(player);
         this.player = player;
         this.plugin = plugin;
+        this.attachments = new HashSet<>();
     }
     
     public void register()
@@ -165,14 +166,14 @@ public class XPermissible extends PermissibleBase
     public void removeAttachment(PermissionAttachment attachment)
     {
         if (!(attachment instanceof XPermissionAttachment)) {
-            throw new IllegalArgumentException("Provided attachment was not a PEX attachment!");
+            throw new IllegalArgumentException("Provided attachment was not a xPermission attachment!");
         }
         removeAttachmentInternal(((XPermissionAttachment) attachment));
         this.attachments.remove(attachment);
         subject.removePermission(((XPermissionAttachment) attachment).getIdentifier());
     }
 
-    void removeAllAttachments()
+    public void removeAllAttachments()
     {
     	for (XPermissionAttachment attach : this.attachments)
     	{

@@ -7,13 +7,13 @@ public class XPermissionNode
 {
 	private String root;
 	private boolean op;
-	private int active;
+	private int value;
 	private List<XPermissionNode> leafs;
 	
-	public XPermissionNode(String root, int active)
+	public XPermissionNode(String root, int value)
 	{
 		this.op = false;
-		this.active = active;
+		this.value = value;
 		this.root = root;
 		this.leafs = new ArrayList<>();
 		if (root.equals("*"))
@@ -58,15 +58,18 @@ public class XPermissionNode
 	
 	public void addLeaf(XPermissionNode node)
 	{
-		if (node != null)
+		if (node != null && !op)
 			this.leafs.add(node);
 	}
 	
-	public int isActive()
+	public int getValue()
 	{
-		if (leafs.size() > 0)
-			return 0;
-		return active;
+		return value;
+	}
+	
+	public void setValue(int value)
+	{
+		this.value = value;
 	}
 	
 	public boolean isOp()
