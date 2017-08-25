@@ -57,9 +57,16 @@ public class PlayerEvents implements Listener
 	@EventHandler
 	public void onPlayerAFKStateChangedEvent(AfkStatusChangeEvent e)
 	{
-		if (e.getAffected().getBase() != null)
-			this.plugin.getManager().getXPlayerSubject(e.getAffected().getBase().getUniqueId()).setAfkMode(e.getValue());
+		final Player p = e.getAffected().getBase();
+		
+		if (hasPlayer(p))
+		{
+			this.plugin.getManager().getXPlayerSubject(p.getUniqueId()).setAfkMode(e.getValue());
+		}
 	}
 	
-	
+	private boolean hasPlayer(Player p)
+	{
+		return p == null ? false : (this.plugin.getManager().getXPlayerSubject(p.getUniqueId()) == null ? false : true);
+	}
 }

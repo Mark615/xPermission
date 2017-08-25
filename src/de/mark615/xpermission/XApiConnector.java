@@ -9,12 +9,10 @@ import de.mark615.xpermission.exception.RankNotFoundException;
 public class XApiConnector extends XPermissionApi
 {
 	private XPermission plugin;
-	//private PriorityConfigBase priority;
 	
 	public XApiConnector(de.mark615.xapi.XApi xapi, XPermission plugin)
 	{
 		super(xapi);
-		//this.priority = xapi.getPriorityConfig();
 		this.plugin = plugin;
 	}
 

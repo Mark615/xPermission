@@ -398,9 +398,41 @@ public class SettingManager
 		return XUtil.replaceColorCodes(permission.getString(path + ".prefix"));
     }
     
+    public String getPlayerPrefix(String player)
+    {
+    	for (String key : permission.getKeys(false))
+    	{
+    		String tempName = permission.getString("permissions." + key + ".name");
+    		if (tempName != null && tempName.equalsIgnoreCase(player))
+			{
+    			String path = "permissions.groups." + permission.getString("permissions." + key + ".group"); 
+    			return XUtil.replaceColorCodes(permission.getString(path + ".prefix"));
+			}
+    	}
+    	
+		String path = "permissions.groups." + XPermission.getInstance().getDefaultGroup().getName(); 
+		return XUtil.replaceColorCodes(permission.getString(path + ".prefix"));
+    }
+    
     public String getPlayerSuffix(UUID uuid)
     {
     	String path = "permissions.groups." + permission.getString("permissions." + uuid.toString() + ".group"); 
+		return XUtil.replaceColorCodes(permission.getString(path + ".suffix"));
+    }
+    
+    public String getPlayerSuffix(String player)
+    {
+    	for (String key : permission.getKeys(false))
+    	{
+    		String tempName = permission.getString("permissions." + key + ".name");
+    		if (tempName != null && tempName.equalsIgnoreCase(player))
+			{
+    			String path = "permissions.groups." + permission.getString("permissions." + key + ".group"); 
+    			return XUtil.replaceColorCodes(permission.getString(path + ".suffix"));
+			}
+    	}
+    	
+		String path = "permissions.groups." + XPermission.getInstance().getDefaultGroup().getName(); 
 		return XUtil.replaceColorCodes(permission.getString(path + ".suffix"));
     }
 	

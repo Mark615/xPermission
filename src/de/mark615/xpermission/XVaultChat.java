@@ -1,9 +1,5 @@
 package de.mark615.xpermission;
 
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-
 import de.mark615.xpermission.object.Group;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
@@ -30,46 +26,34 @@ public class XVaultChat extends Chat
 		return plugin.getName();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public String getPlayerPrefix(String world, String player)
 	{
+		/*
 		for (Player p : Bukkit.getServer().getOnlinePlayers())
 		{
 			if (p.getName().equals(player) && plugin.getManager().getXPlayerSubject(p.getUniqueId()) != null)
 			{
 				return plugin.getManager().getXPlayerSubject(p.getUniqueId()).getPrefix();
 			}
-		}
+		}*/
 		
-		OfflinePlayer offlineplayer = Bukkit.getServer().getOfflinePlayer(player);
-		if (offlineplayer != null && offlineplayer.getUniqueId() != null)
-		{
-			return SettingManager.getInstance().getPlayerPrefix(offlineplayer.getUniqueId());
-		}
-		
-		return null;
+		return SettingManager.getInstance().getPlayerPrefix(player);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public String getPlayerSuffix(String world, String player)
 	{
+		/*
 		for (Player p : Bukkit.getServer().getOnlinePlayers())
 		{
 			if (p.getName().equals(player) && plugin.getManager().getXPlayerSubject(p.getUniqueId()) != null)
 			{
 				return plugin.getManager().getXPlayerSubject(p.getUniqueId()).getSuffix();
 			}
-		}
+		}*/
 		
-		OfflinePlayer offlineplayer = Bukkit.getServer().getOfflinePlayer(player);
-		if (offlineplayer != null && offlineplayer.getUniqueId() != null)
-		{
-			return SettingManager.getInstance().getPlayerSuffix(offlineplayer.getUniqueId());
-		}
-		
-		return null;
+		return SettingManager.getInstance().getPlayerSuffix(player);
 	}
 
 	@Override
