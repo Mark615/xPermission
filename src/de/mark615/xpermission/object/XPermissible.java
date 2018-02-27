@@ -90,7 +90,7 @@ public class XPermissible extends PermissibleBase
     	if (permission.trim().isEmpty())
     		return true;
     	
-    	XPermissionTree nodeTree = subject.getPermissions(player);
+    	XPermissionTree nodeTree = subject.getPermissions(player.getWorld());
     	if (type.equalsIgnoreCase("get"))
     	{
     		return nodeTree.get(permission);
@@ -150,7 +150,7 @@ public class XPermissible extends PermissibleBase
     @Override
     public PermissionAttachment addAttachment(Plugin plugin, int ticks)
     {
-        return addAttachment(plugin); // TODO: Implement timed permissions
+        return addAttachment(plugin);
     }
 
     public boolean removeAttachmentInternal(final XPermissionAttachment attach)

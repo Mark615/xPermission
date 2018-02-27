@@ -12,6 +12,7 @@ import org.bukkit.permissions.PermissionAttachment;
 import de.mark615.xpermission.events.PlayerEvents;
 import de.mark615.xpermission.object.Group;
 import de.mark615.xpermission.object.XInjector;
+import de.mark615.xpermission.object.XOfflinePlayerSubject;
 import de.mark615.xpermission.object.XPermissible;
 import de.mark615.xpermission.object.XPlayerSubject;
 import de.mark615.xpermission.object.XUtil;
@@ -107,7 +108,7 @@ public class PermissionManager
 		}
 		player.get(p.getUniqueId()).setGroup(group);
 
-		Map<String, Boolean> permissions = settings.getPlayerPermissionList(p.getUniqueId(), player.get(p.getUniqueId()));
+		Map<String, Boolean> permissions = settings.getPlayerPermissionList((XOfflinePlayerSubject)player.get(p.getUniqueId()));
 		for (String perm : permissions.keySet())
 		{
 			PermissionAttachment attachment = p.addAttachment(XPermission.getInstance(), perm, permissions.get(perm));

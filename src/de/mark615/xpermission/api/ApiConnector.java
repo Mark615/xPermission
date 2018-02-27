@@ -1,19 +1,26 @@
-package de.mark615.xpermission;
+package de.mark615.xpermission.api;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import de.mark615.xapi.interfaces.XPermissionApi;
+import de.mark615.xcore.interfaces.XPermissionApi;
+import de.mark615.xpermission.XPermission;
 import de.mark615.xpermission.exception.RankNotFoundException;
 
-public class XApiConnector extends XPermissionApi
+public class ApiConnector implements ApiInterface
 {
 	private XPermission plugin;
+	private XPermissionApi api;
 	
-	public XApiConnector(de.mark615.xapi.XApi xapi, XPermission plugin)
+	public ApiConnector(XPermission plugin, XPermissionApi api)
 	{
-		super(xapi);
 		this.plugin = plugin;
+		this.api = api;
+		this.api.setApi(this);
+	}
+	
+	public XPermissionApi getApi() {
+		return api;
 	}
 
 	@Override

@@ -1,6 +1,7 @@
-package de.mark615.xpermission;
+package de.mark615.xpermission.object;
 
-import de.mark615.xpermission.object.Group;
+import de.mark615.xpermission.SettingManager;
+import de.mark615.xpermission.XPermission;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
 

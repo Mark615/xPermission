@@ -6,8 +6,6 @@ import java.util.Map;
 
 import org.bukkit.configuration.ConfigurationSection;
 
-import com.mysql.jdbc.interceptors.SessionAssociationInterceptor;
-
 import de.mark615.xpermission.SettingManager;
 
 public class Group {

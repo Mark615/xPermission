@@ -1,10 +1,9 @@
 package de.mark615.xpermission.object;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
@@ -29,23 +28,6 @@ public class XPlayerSubject extends XOfflinePlayerSubject
 		section.set("lastLogin", this.lastLogin);
 	}
 	
-	public void setPermission(UUID uuid, String perm, int value)
-	{
-		if (perm == null)
-			return;
-		
-		if (permission.get(uuid) != null)
-		{
-			permission.get(uuid).put(perm, Integer.valueOf(value));
-		}
-		else
-		{
-			Map<String, Integer> map = new HashMap<>();
-			map.put(perm, Integer.valueOf(value));
-			permission.put(uuid, map);
-		}
-	}
-	
 	public void removePermission(UUID uuid)
 	{
 		if (uuid == null)
@@ -59,13 +41,13 @@ public class XPlayerSubject extends XOfflinePlayerSubject
 		permission.clear();
 	}
 	
-	public XPermissionTree getPermissions(Player p)
+	public XPermissionTree getPermissions(World world)
 	{
 		boolean reload = true;
 		if (lastWorld == null)
-			lastWorld = p.getWorld().getName();
+			lastWorld = world.getName();
 		else
-		if (lastWorld.equalsIgnoreCase(p.getWorld().getName()))
+		if (lastWorld.equalsIgnoreCase(world.getName()))
 			reload = false;
 		
 		if ((System.currentTimeMillis() - lastRequest) > DEFAULTVALID_TIME)

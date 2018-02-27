@@ -54,7 +54,8 @@ public class RankManager
 								try
 								{
 									changeRankTo(subject, group.getRank());
-									this.plugin.getAPI().createPlayerRankChangedEvent(subject.getPlayer(), subject.getGroup().getRank(), group.getRank(), true);
+									if (plugin.hasApiConnector())
+										plugin.getApiConnector().getApi().createPlayerRankChangedEvent(subject.getPlayer(), subject.getGroup().getRank(), group.getRank(), true);
 								}
 								catch (RankNotFoundException e)
 								{}
@@ -71,7 +72,8 @@ public class RankManager
 		XPlayerSubject subject = plugin.getManager().getXPlayerSubject(p.getUniqueId());
 		if (subject != null)
 			changeRankTo(subject, subject.getGroup().getRank() + 1);
-		this.plugin.getAPI().createPlayerRankChangedEvent(p, subject.getGroup().getRank(), subject.getGroup().getRank() + 1, false);
+		if (plugin.hasApiConnector())
+			plugin.getApiConnector().getApi().createPlayerRankChangedEvent(p, subject.getGroup().getRank(), subject.getGroup().getRank() + 1, false);
 	}
 	
 	public void rankPlayerDown(Player p) throws RankNotFoundException
@@ -79,7 +81,8 @@ public class RankManager
 		XPlayerSubject subject = plugin.getManager().getXPlayerSubject(p.getUniqueId());
 		if (subject != null && subject.getGroup().getRank() > 0)
 			changeRankTo(subject, subject.getGroup().getRank() - 1);
-		this.plugin.getAPI().createPlayerRankChangedEvent(p, subject.getGroup().getRank(), subject.getGroup().getRank() - 1, false);
+		if (plugin.hasApiConnector())
+			plugin.getApiConnector().getApi().createPlayerRankChangedEvent(p, subject.getGroup().getRank(), subject.getGroup().getRank() - 1, false);
 	}
 	
 	public void setPlayerrank(Player p, int rank) throws RankNotFoundException
@@ -88,7 +91,8 @@ public class RankManager
 		if (subject != null)
 			changeRankTo(subject, rank);
 		disableAutoRanking(p, true);
-		this.plugin.getAPI().createPlayerRankChangedEvent(p, subject.getGroup().getRank(), rank, false);
+		if (plugin.hasApiConnector())
+			plugin.getApiConnector().getApi().createPlayerRankChangedEvent(p, subject.getGroup().getRank(), rank, false);
 	}
 	
 	private void changeRankTo(XPlayerSubject target, int rank) throws RankNotFoundException
@@ -124,6 +128,7 @@ public class RankManager
 		{
 			this.plugin.getPermissionEditor().addPermissionToXSubject(subject, "- xperm.rank.auto");
 		}
-		this.plugin.getAPI().createPlayerAutoRankingChangedEvent(player, value);
+		if (plugin.hasApiConnector())
+			plugin.getApiConnector().getApi().createPlayerAutoRankingChangedEvent(player, value);
 	}
 }

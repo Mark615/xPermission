@@ -12,6 +12,7 @@ import de.mark615.xpermission.SettingManager;
 import de.mark615.xpermission.XPermission;
 import de.mark615.xpermission.object.XPlayerSubject;
 import de.mark615.xpermission.object.XUtil;
+import de.mark615.xpermission.object.XVaultPermission;
 
 public class CommandXPerm extends XCommand
 {
@@ -133,6 +134,10 @@ public class CommandXPerm extends XCommand
 			SettingManager.getInstance().reloadMessage();
 			SettingManager.getInstance().reloadPermission();
 			plugin.getManager().reloadAllPlayer();
+			if (XVaultPermission.getInstance() != null) {
+				XVaultPermission.getInstance().cleanOfflinePlayer();
+				XUtil.info("reset xVaultPermission Cache.");
+			}
 			XUtil.sendCommandInfo(sender, XUtil.getMessage("command.xperm.reload.success"));
 		}
 		catch (Exception e)

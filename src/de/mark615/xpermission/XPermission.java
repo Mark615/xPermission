@@ -12,30 +12,37 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.java.mcstats.Metrics;
 
 import com.earth2me.essentials.Essentials;
 
-import de.mark615.xapi.XApi;
-import de.mark615.xapi.versioncheck.VersionCheck;
-import de.mark615.xapi.versioncheck.VersionCheck.XType;
+import de.mark615.xcore.XCore;
+import de.mark615.xcore.interfaces.XPermissionApi;
+import de.mark615.xcore.versioncheck.VersionCheck;
+import de.mark615.xcore.versioncheck.VersionCheck.XType;
+import de.mark615.xpermission.api.ApiConnector;
 import de.mark615.xpermission.command.CommandXPerm;
 import de.mark615.xpermission.command.CommandXRank;
 import de.mark615.xpermission.command.XCommand;
+import de.mark615.xpermission.events.EssentialEvents;
 import de.mark615.xpermission.events.PlayerEvents;
 import de.mark615.xpermission.object.Group;
 import de.mark615.xpermission.object.XUtil;
+import de.mark615.xpermission.object.XVaultChat;
+import de.mark615.xpermission.object.XVaultPermission;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
 
 public class XPermission extends JavaPlugin
 {
-	public static final int BUILD = 8;
+	public static final int BUILD = 9;
 	public static final String PLUGIN_NAME = "[xPermission] ";
-	public static final String PLUGIN_NAME_SHORT = "[xPerm] ";
 	
 	private static XPermission instance = null;
+	private Metrics metrics = null;
 
-	private XApiConnector xapiconn = null;
+	private XCore xcore;
+	private ApiConnector xapiconn = null;
 	private Essentials ess = null;
 
 	private SettingManager settings = null;
@@ -57,22 +64,26 @@ public class XPermission extends JavaPlugin
 		this.manager = new PermissionManager(this);
 		this.editor = new PermissionEditor(this);
 		this.rankmanager = new RankManager(this);
-
-		registerEvents();
-		registerCommands();
 		
-		setupXApi();
-		if (xapiconn != null)
-		{
-			XUtil.info("connected with xApi");
-		}
-		hookEssentials();
-		if (ess != null)
-		{
-			XUtil.info("connected to Essentials2");
+		Bukkit.getServer().getScheduler().runTaskLater(this, new Runnable() {
+			@Override
+			public void run() {
+				setupXApi();
+				hookEssentials();
+				registerEvents();
+				registerCommands();
+			}
+		}, 0);
+		
+		
+		try{
+			metrics = new Metrics(this);
+			metrics.start();
+			XUtil.info("hooked to [Metrics]");
+		} catch (Exception e){
+			XUtil.severe("Can't hook to [Metrics]", e);
 		}
 		
-		XUtil.onEnable();
 		XUtil.updateCheck(this);
 		
 		XVaultPermission permission = new XVaultPermission(this);
@@ -86,7 +97,6 @@ public class XPermission extends JavaPlugin
 	@Override
 	public void onDisable()
 	{
-		XUtil.onDisable();
 		this.groups = null;
 		for (Player p : Bukkit.getServer().getOnlinePlayers())
 		{
@@ -95,7 +105,7 @@ public class XPermission extends JavaPlugin
 		this.settings.savePermission();
 	}
 	
-	public void loadPlugin()
+	private void loadPlugin()
 	{
 		setupPermissionGroups();
 		settings.checkPermissionFile();
@@ -114,12 +124,13 @@ public class XPermission extends JavaPlugin
 	}
 	
 	
-	
-	
 
 	private void registerEvents()
 	{
 		Bukkit.getServer().getPluginManager().registerEvents(new PlayerEvents(this), this);
+		if (hasEssentials()) {
+			Bukkit.getServer().getPluginManager().registerEvents(new EssentialEvents(this), this);
+		}
 	}
 	
 	private void registerCommands()
@@ -130,27 +141,36 @@ public class XPermission extends JavaPlugin
 
 	private boolean setupXApi() 
 	{
-		XApi xapi = (XApi)getServer().getPluginManager().getPlugin("xApi");
-    	if(xapi == null)
+		try {
+			Class.forName("de.mark615.xcore.XCore");
+		}
+		catch (Exception e) {
+			return false;
+		}
+		
+		XCore xcore = (XCore)getServer().getPluginManager().getPlugin("xCore");
+    	if(xcore == null)
     		return false;
     	
+    	this.xcore = xcore;
     	try
     	{
-	    	if (xapi.checkVersion(XType.xPermission, BUILD))
+	    	if (xcore.checkVersion(XType.xPermission, BUILD))
 	    	{
-	        	xapiconn = new XApiConnector(xapi, this);
-	        	xapi.registerXPermission(xapiconn);
+	        	xapiconn = new ApiConnector(this, new XPermissionApi(xcore));
+	        	xcore.registerXPermission(xapiconn.getApi());
+	            XUtil.info("hooked to [xCore]");
 	    	}
 	    	else
 	    	{
-	    		XUtil.severe("Can't hook to xApi!"); 
+	    		XUtil.severe("Can't hook to xCore!"); 
 	    		if (VersionCheck.isXPluginHigherXApi(XType.xPermission, BUILD))
 	    		{
-		    		XUtil.warning("Please update your xApi!");
-		    		XUtil.warning("Trying to hook to xApi. Have an eye into console for errors with xApi!");
+		    		XUtil.warning("Please update your xCore!");
+		    		XUtil.warning("Trying to hook to xCore. Have an eye into console for errors with xCore!");
 
-		        	xapiconn = new XApiConnector(xapi, this);
-		        	xapi.registerXPermission(xapiconn);
+		    		xapiconn = new ApiConnector(this, new XPermissionApi(xcore));
+		        	xcore.registerXPermission(xapiconn.getApi());
 	    		}
 	    		else
 	    		{
@@ -160,10 +180,21 @@ public class XPermission extends JavaPlugin
     	}
     	catch (Exception e)
     	{
-    		XUtil.severe("An error accurred during connection to xApi!");
+    		XUtil.severe("An error accurred during connection to xCore!");
     	}
     	
     	return xapiconn != null;
+	}
+	
+	private boolean hookEssentials()
+	{
+		Essentials ess = (Essentials)getServer().getPluginManager().getPlugin("Essentials");
+		if (ess == null)
+			return false;
+
+		this.ess = ess;
+		XUtil.info("hooked to [Essentials2]");
+		return true;
 	}
 	
 	private boolean hookVaultPermissions(XVaultPermission vault)
@@ -171,7 +202,7 @@ public class XPermission extends JavaPlugin
 		if (getServer().getPluginManager().isPluginEnabled("Vault"))
 		{
             getServer().getServicesManager().register(Permission.class, vault, this, ServicePriority.High); // Hook into vault
-            XUtil.info("Activate Vault permissioninterfaces");
+            XUtil.info("Activate [Vault][Permission]");
             return true;
 		}
 		return false;
@@ -182,20 +213,10 @@ public class XPermission extends JavaPlugin
 		if (getServer().getPluginManager().isPluginEnabled("Vault"))
 		{
             getServer().getServicesManager().register(Chat.class, vault, this, ServicePriority.High); // Hook into vault
-            XUtil.info("Activate Vault chatinterfaces");
+            XUtil.info("Activate [Vault][Chat]");
             return true;
 		}
 		return false;
-	}
-	
-	private boolean hookEssentials()
-	{
-		Essentials ess = (Essentials)getServer().getPluginManager().getPlugin("Essentials");
-		if (ess == null)
-			return false;
-
-		this.ess = ess;
-		return true;
 	}
 
 	private void setupPermissionGroups()
@@ -335,15 +356,30 @@ public class XPermission extends JavaPlugin
 	{
 		return this.rankmanager;
 	}
-	
-	public XApiConnector getAPI()
+
+	public boolean hasXCore()
 	{
-		return this.xapiconn;
+		return (xcore != null && xcore.getXPlugin(XType.xPermission) != null);
 	}
 	
-	public boolean hasAPI()
+	public boolean hasXApi(XType type)
 	{
-		return this.xapiconn != null;
+		return (hasXCore() && xcore.getXPlugin(type) != null);
+	}
+	
+	public XCore getXCore()
+	{
+		return xcore;
+	}
+	
+	public boolean hasApiConnector()
+	{
+		return xapiconn != null;
+	}
+	
+	public ApiConnector getApiConnector()
+	{
+		return xapiconn;
 	}
 	
 	public boolean hasEssentials()

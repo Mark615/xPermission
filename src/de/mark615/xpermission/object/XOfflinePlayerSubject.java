@@ -54,6 +54,45 @@ public class XOfflinePlayerSubject
 		this.groups = SettingManager.getInstance().getXPlayerSubjectGroups(uuid);
 	}
 	
+	public void setPermission(UUID uuid, String perm, int value)
+	{
+		if (perm == null)
+			return;
+		
+		if (permission.get(uuid) != null)
+		{
+			permission.get(uuid).put(perm, Integer.valueOf(value));
+		}
+		else
+		{
+			Map<String, Integer> map = new HashMap<>();
+			map.put(perm, Integer.valueOf(value));
+			permission.put(uuid, map);
+		}
+	}
+	
+	public XPermissionTree getPermissionTree()
+	{
+		boolean reload = true;		
+		if ((System.currentTimeMillis() - lastRequest) > DEFAULTVALID_TIME)
+			reload = true;
+		
+		if (reload || (tree == null))
+		{
+			tree = new XPermissionTree();
+			for (UUID uuid : permission.keySet())
+			{
+				for (String key : permission.get(uuid).keySet())
+				{
+					tree.addPermission(key, permission.get(uuid).get(key));
+				}
+			}
+			lastRequest = System.currentTimeMillis();
+		}
+		
+		return tree;
+	}
+	
 	public Map<String, Boolean> getPermissions()
 	{
 		Map<String, Boolean> perms = new HashMap<>();
@@ -109,6 +148,11 @@ public class XOfflinePlayerSubject
 	public long getAfkTime()
 	{
 		return this.afkTime;
+	}
+	
+	public void setAfkMode()
+	{
+		this.afkTime = System.currentTimeMillis();
 	}
 	
 	public Group getGroup()

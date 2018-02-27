@@ -1,23 +1,49 @@
-package de.mark615.xpermission;
+package de.mark615.xpermission.object;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 
-import de.mark615.xpermission.object.Group;
-import de.mark615.xpermission.object.XPlayerSubject;
+import de.mark615.xpermission.SettingManager;
+import de.mark615.xpermission.XPermission;
 import net.milkbowl.vault.permission.Permission;
 
 public class XVaultPermission extends Permission
 {
 	private XPermission plugin;
+	private HashMap<String, XOfflinePlayerSubject> offline;
+	private static XVaultPermission instance;
+	
+	public void cleanOfflinePlayer()
+	{
+		List<String> remove = new ArrayList<>();
+		for (String key : offline.keySet())
+		{
+			if (System.currentTimeMillis() > (5 * 60 * 1000));
+				remove.add(key);
+		}
+		
+		for (String key : remove)
+			offline.remove(key);
+	}
+	
+	public static XVaultPermission getInstance() {
+		return instance;
+	}
 	
 	public XVaultPermission(XPermission plugin)
 	{
 		this.plugin = plugin;
+		instance = this;
+		this.offline = new HashMap<>();
 	}
 
 	@Override
@@ -154,18 +180,68 @@ public class XVaultPermission extends Permission
 	}
 
 	@Override
+	public boolean playerHas(Player player, String permission) {
+		return this.playerHas(null, player, permission);
+	}
+
+	@Override
+	public boolean playerHas(String world, OfflinePlayer player, String permission) {
+		return playerHas(world, player.getName(), permission);
+	}
+
+	@Override
+	public boolean playerHas(World world, String player, String permission) {
+		if (world == null)
+			return this.playerHas(Bukkit.getWorlds().get(0).getName(), player, permission);
+		else
+			return this.playerHas(world.getName(), player, permission);
+	}
+
+	@Override
 	public boolean playerHas(String world, String player, String permission)
 	{
 		for (Player p : Bukkit.getServer().getOnlinePlayers())
 		{
 			if (p.getName().equals(player))
 			{
-				return p.hasPermission(permission);
+				return playerHas(world, p, permission);
 			}
 		}
 		
-		return false;
+		//TODO check world permission
+		UUID uuid = null;
+		XOfflinePlayerSubject subject = offline.get(player);
+		if (subject == null) {
+			uuid = SettingManager.getInstance().getPlayerUuidFromName(player);
+			if (uuid == null)
+				return false;
+
+			subject = new XOfflinePlayerSubject(uuid, SettingManager.getInstance().getPlayerConfigurationsection(uuid));
+		}
+		else
+			uuid = subject.getUUID();
+		
+		if (!offline.containsKey(player)) {
+			Map<String, Boolean> perms = SettingManager.getInstance().getPlayerPermissionList(subject);
+			for (String key : perms.keySet()) {
+				subject.setPermission(UUID.randomUUID(), key, perms.get(key) ? 1 : -1);
+			}
+			offline.put(player, subject);
+		}
+		
+		return subject.getPermissionTree().has(permission);
 	}
+	
+	private boolean playerHas(String world, Player p, String permission)
+	{
+		//TODO checkworld permission
+		if (p == null || Bukkit.getPlayer(p.getUniqueId()) == null)
+			return false;
+		
+		return p.hasPermission(permission);
+	}
+	
+	
 
 	@Override
 	public boolean playerAddGroup(String world, String player, String group)

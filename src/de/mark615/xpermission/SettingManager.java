@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import de.mark615.xpermission.object.Group;
+import de.mark615.xpermission.object.XOfflinePlayerSubject;
 import de.mark615.xpermission.object.XPlayerSubject;
 import de.mark615.xpermission.object.XUtil;
 
@@ -214,8 +215,8 @@ public class SettingManager
 			firstJoin = true;
 			generatePlayerSection(plugin, p);
 
-			if (plugin.hasAPI())
-				plugin.getAPI().createPlayerFirstjoinEvent(p);
+			if (plugin.hasApiConnector())
+				plugin.getApiConnector().getApi().createPlayerFirstjoinEvent(p);
 
 			if (hasFirstJoinMessage())
 			{
@@ -228,21 +229,22 @@ public class SettingManager
 		return firstJoin;
     }
     
-    public Map<String, Boolean> getPlayerPermissionList(UUID uuid, XPlayerSubject subject)
+    public Map<String, Boolean> getPlayerPermissionList(XOfflinePlayerSubject subject)
     {
     	List<String> loadedGroups = new ArrayList<>();
     	Map<String, Boolean> perms = new HashMap<>();
 
     	//load grouppermissions
-    	String group = permission.getString("permissions." + uuid.toString() + ".group");
+    	String group = permission.getString("permissions." + subject.getUUID().toString() + ".group");
     	loadPlayerGroupPermission(group, perms, subject, loadedGroups);
     	
     	//load playerpermission
-    	loadPlayerPermission(uuid, perms);
+    	loadPlayerPermission(subject.getUUID(), perms);
+    	
     	return perms;
     }
     
-    private void loadPlayerGroupPermission(String group, Map<String, Boolean> playerPerms, XPlayerSubject subject, List<String> loadedGroups)
+    private void loadPlayerGroupPermission(String group, Map<String, Boolean> playerPerms, XOfflinePlayerSubject subject, List<String> loadedGroups)
     {
     	loadedGroups.add(group);
     	String nextGroup = permission.getString("permissions.groups." + group + ".inheriance");
@@ -435,6 +437,23 @@ public class SettingManager
     	
 		String path = "permissions.groups." + XPermission.getInstance().getDefaultGroup().getName(); 
 		return XUtil.replaceColorCodes(permission.getString(path + ".suffix"));
+    }
+    
+    public UUID getPlayerUuidFromName(String name)
+    {
+    	for (String key : permission.getConfigurationSection("permissions.").getKeys(false))
+    	{
+    		if (permission.getString("permissions." + key + ".name") != null && permission.getString("permissions." + key + ".name").equalsIgnoreCase(name))
+    		{
+    			try {
+    				return UUID.fromString(permission.getString("permissions." + key + ".uuid"));
+    			}
+    			catch (Exception e) {
+    				return null;
+    			}
+    		}
+    	}
+    	return null;
     }
 	
 	public List<String> getXPlayerSubjectGroups(UUID uuid)

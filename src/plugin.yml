@@ -1,9 +1,10 @@
 name: xPermission
 main: de.mark615.xpermission.XPermission
-version: 1.0.8
+version: 1.0.9
 description: Permission Plugin
 author: Mark615
 loadbefore: [xChat, xSignIn, xBan, xQuest]
+softdepend: [xCore, xApi]
 depend: [Vault]
 
 commands:
